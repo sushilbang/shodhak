@@ -1,0 +1,7 @@
+/.vscode
+/node_modules
+.env
+null
+RESEARCH_AGENT_IMPLEMENTATION_GUIDE.md
+combined.log
+error.log
