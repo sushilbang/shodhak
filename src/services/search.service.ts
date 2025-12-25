@@ -1,48 +1,218 @@
-import axios, { AxiosInstance } from 'axios';
 import { pool } from '../config/database';
 import { logger } from '../utils/logger';
-import { Paper, SemanticScholarPaper, SemanticScholarSearchResponse } from '../models/database.models';
+import { Paper } from '../models/database.models';
+import {
+    PaperProvider,
+    RawPaperResult,
+    normalizeToInternalPaper,
+    OpenAlexProvider,
+    CrossrefProvider,
+    SemanticScholarProvider,
+} from '../providers';
+import { getLimiter } from '../utils/concurrency-limiter';
 
+type ProviderName = 'openalex' | 'semantic_scholar' | 'crossref';
+
+/**
+ * SearchService orchestrates multiple paper providers.
+ *
+ * - Uses PRIMARY_PAPER_PROVIDER env var to select the main search backend (default: openalex)
+ * - Semantic Scholar can be used for enrichment (adds abstracts/citations when missing)
+ * - Crossref is used as DOI-based fallback for missing metadata
+ * - All results are cached in the database with the normalized Paper shape
+ */
 class SearchService {
-    private client: AxiosInstance;
-    private readonly BASE_URL = 'https://api.semanticscholar.org/graph/v1';
-    private readonly FIELDS = 'paperId,title,authors,abstract,url,doi,year,venue,citationCount';
+    private providers: Map<ProviderName, PaperProvider>;
+    private primaryProvider: PaperProvider;
 
     constructor() {
-        this.client = axios.create({
-            baseURL: this.BASE_URL,
-            timeout: 10000,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        // Initialize all providers
+        this.providers = new Map();
+        this.providers.set('openalex', new OpenAlexProvider());
+        this.providers.set('semantic_scholar', new SemanticScholarProvider());
+        this.providers.set('crossref', new CrossrefProvider());
+
+        // Select primary provider from env
+        const primaryName = (process.env.PRIMARY_PAPER_PROVIDER || 'openalex') as ProviderName;
+
+        if (!this.providers.has(primaryName)) {
+            logger.warn(`Unknown PRIMARY_PAPER_PROVIDER: ${primaryName}, falling back to openalex`);
+            this.primaryProvider = this.providers.get('openalex')!;
+        } else {
+            this.primaryProvider = this.providers.get(primaryName)!;
+        }
+
+        logger.info(`Search service initialized with primary provider: ${this.primaryProvider.name}`);
     }
-    // normalize semantic scholar response to internal Paper model
-    private normalizePaper(ssPaper: SemanticScholarPaper): Paper {
-        return {
-            external_id: ssPaper.paperId,
-            title: ssPaper.title,
-            authors: ssPaper.authors.map((a) => ({
-                name: a.name,
-                authorId: a.authorId,
-            })),
-            abstract: ssPaper.abstract || '',
-            url: ssPaper.url,
-            doi: ssPaper.doi,
-            year: ssPaper.year,
-            venue: ssPaper.venue,
-            citation_count: ssPaper.citationCount,
-            source: 'semantic_scholar',
-        };
+
+    /**
+     * Execute a provider operation with concurrency limiting
+     */
+    private async withConcurrencyLimit<T>(
+        provider: PaperProvider,
+        operation: () => Promise<T>
+    ): Promise<T> {
+        const limiter = getLimiter(provider.name, provider.concurrencyConfig);
+        return limiter.execute(operation);
     }
-    // save paper to database if it does not exists
+
+    /**
+     * Search papers using the primary provider
+     * Maintains the original contract: searchService.searchPapers(query, limit)
+     */
+    async searchPapers(query: string, limit: number = 10): Promise<Paper[]> {
+        try {
+            logger.info('Searching papers', { query, limit, provider: this.primaryProvider.name });
+
+            const rawResults = await this.withConcurrencyLimit(
+                this.primaryProvider,
+                () => this.primaryProvider.search(query, limit)
+            );
+
+            // Normalize and cache results
+            const papers: Paper[] = [];
+            for (const raw of rawResults) {
+                const paper = normalizeToInternalPaper(raw);
+                await this.savePaperIfNotExists(paper);
+                papers.push(paper);
+            }
+
+            logger.info('Search completed', { resultCount: papers.length });
+            return papers;
+        } catch (error) {
+            logger.error('Paper search failed', { error, query, provider: this.primaryProvider.name });
+            throw error;
+        }
+    }
+
+    /**
+     * Try to enrich paper data using available providers
+     * Priority: Semantic Scholar (for abstracts) -> Crossref (for metadata)
+     */
+    private async tryEnrichPaper(paper: Paper): Promise<Partial<Paper> | null> {
+        if (!paper.doi) return null;
+
+        const enrichment: Partial<Paper> = {};
+
+        // Try Semantic Scholar for abstract
+        if (!paper.abstract) {
+            const ssProvider = this.providers.get('semantic_scholar');
+            if (ssProvider?.enrich) {
+                try {
+                    const ssEnrich = await this.withConcurrencyLimit(
+                        ssProvider,
+                        () => ssProvider.enrich!(paper)
+                    );
+                    if (ssEnrich?.abstract) {
+                        enrichment.abstract = ssEnrich.abstract;
+                    }
+                    if (ssEnrich?.citationCount) {
+                        enrichment.citation_count = ssEnrich.citationCount;
+                    }
+                } catch (err) {
+                    logger.debug('Semantic Scholar enrichment failed', { doi: paper.doi });
+                }
+            }
+        }
+
+        // Try Crossref for missing venue/year
+        if (!paper.venue || !paper.year) {
+            const crProvider = this.providers.get('crossref');
+            if (crProvider?.enrich) {
+                try {
+                    const crEnrich = await this.withConcurrencyLimit(
+                        crProvider,
+                        () => crProvider.enrich!(paper)
+                    );
+                    if (crEnrich?.venue && !paper.venue) {
+                        enrichment.venue = crEnrich.venue;
+                    }
+                    if (crEnrich?.year && !paper.year) {
+                        enrichment.year = crEnrich.year;
+                    }
+                } catch (err) {
+                    logger.debug('Crossref enrichment failed', { doi: paper.doi });
+                }
+            }
+        }
+
+        return Object.keys(enrichment).length > 0 ? enrichment : null;
+    }
+
+    /**
+     * Lookup a paper by DOI using available providers
+     */
+    async lookupByDoi(doi: string): Promise<Paper | null> {
+        // Try primary provider first
+        if (this.primaryProvider.lookupByDoi) {
+            try {
+                const result = await this.withConcurrencyLimit(
+                    this.primaryProvider,
+                    () => this.primaryProvider.lookupByDoi!(doi)
+                );
+                if (result) {
+                    const paper = normalizeToInternalPaper(result);
+                    await this.savePaperIfNotExists(paper);
+                    return paper;
+                }
+            } catch (err) {
+                logger.debug('Primary provider DOI lookup failed', { doi });
+            }
+        }
+
+        // Fallback to Crossref for DOI lookup
+        const crProvider = this.providers.get('crossref');
+        if (crProvider?.lookupByDoi) {
+            try {
+                const result = await this.withConcurrencyLimit(
+                    crProvider,
+                    () => crProvider.lookupByDoi!(doi)
+                );
+                if (result) {
+                    const paper = normalizeToInternalPaper(result);
+                    await this.savePaperIfNotExists(paper);
+                    return paper;
+                }
+            } catch (err) {
+                logger.debug('Crossref DOI lookup failed', { doi });
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get paper details by external ID (provider-specific ID)
+     * For backwards compatibility with Semantic Scholar paper IDs
+     */
+    async getPaperDetails(paperId: string): Promise<Paper | null> {
+        const ssProvider = this.providers.get('semantic_scholar') as SemanticScholarProvider;
+        try {
+            const result = await this.withConcurrencyLimit(
+                ssProvider,
+                () => ssProvider.getPaperById(paperId)
+            );
+            if (result) {
+                const paper = normalizeToInternalPaper(result);
+                await this.savePaperIfNotExists(paper);
+                return paper;
+            }
+        } catch (error) {
+            logger.error('Failed to get paper details', { error, paperId });
+        }
+        return null;
+    }
+
+    /**
+     * Save paper to database if it doesn't exist
+     */
     async savePaperIfNotExists(paper: Paper): Promise<number> {
         const existing = await pool.query(
             'SELECT id FROM papers WHERE external_id = $1',
             [paper.external_id]
         );
 
-        if(existing.rows.length > 0) {
+        if (existing.rows.length > 0) {
             return existing.rows[0].id;
         }
 
@@ -66,41 +236,24 @@ class SearchService {
         );
 
         logger.info('Saved new paper', {
-            id: result.rows[0].id, title: paper.title
+            id: result.rows[0].id,
+            title: paper.title,
+            source: paper.source,
         });
 
         return result.rows[0].id;
     }
-    // get paper details by id
-    async getPaperDetails(paperId: string): Promise<Paper | null> {
-        try {
-            const response = await this.client.get<SemanticScholarPaper>(
-                `/paper/${paperId}`,
-                {
-                    params: { fields: this.FIELDS },
-                }
-            );
 
-            const paper = this.normalizePaper(response.data);
-            await this.savePaperIfNotExists(paper);
-
-            return paper;
-        } catch (error) {
-            logger.error('Failed to get paper details', {
-                error, paperId
-            });
-
-            return null;
-        }
-    }
-    // get paper from database by external ID
+    /**
+     * Get paper from database by external ID
+     */
     async getPaperByExternalId(external_id: string): Promise<Paper | null> {
         const result = await pool.query(
             'SELECT * FROM papers WHERE external_id = $1',
             [external_id]
         );
 
-        if(result.rows.length === 0) return null;
+        if (result.rows.length === 0) return null;
 
         const row = result.rows[0];
 
@@ -120,34 +273,13 @@ class SearchService {
             created_at: row.created_at,
         };
     }
-    // search papers from semantic scholar
-    async searchPapers(query: string, limit: number=10): Promise<Paper[]> {
-        try {
-            const response = await this.client.get<SemanticScholarSearchResponse>(
-                'paper/search',
-                {
-                    params: {
-                        query,
-                        limit,
-                        fields: this.FIELDS,
-                    },
-                }
-            );
 
-            const papers = response.data.data.map((p) => this.normalizePaper(p));
-            //cache papers in database
-            for(const paper of papers) {
-                await this.savePaperIfNotExists(paper);
-            }
-
-            return papers;
-        } catch (error) {
-            logger.error('Semantic Scholar search failed', {
-                error, query
-            });
-
-            throw error;
-        }
-    } 
+    /**
+     * Get the current primary provider name
+     */
+    getPrimaryProviderName(): string {
+        return this.primaryProvider.name;
+    }
 }
+
 export const searchService = new SearchService();

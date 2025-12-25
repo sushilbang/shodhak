@@ -1,5 +1,6 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import path from 'path';
 import dotenv from 'dotenv';
 import researchRoutes from './routes/research.routes';
 import { pool } from './config/database';
@@ -19,6 +20,9 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from public folder
+app.use(express.static(path.join(__dirname, '../public')));
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     logger.info('Incoming request', {
@@ -96,10 +100,11 @@ const startServer = async (): Promise<void> => {
             logger.info(`API base: http://localhost:${PORT}/api/research`);
 
             if (process.env.NODE_ENV === 'development') {
-                console.log('\n Research Agent API Ready!');
-                console.log(`   Health: http://localhost:${PORT}/health`);
-                console.log(`   API:    http://localhost:${PORT}/api/research`);
-                console.log('\n   Use X-User-Id header for authentication (dev mode)\n');
+                console.log('\n Shodhak Research Assistant Ready!');
+                console.log(`   Frontend: http://localhost:${PORT}`);
+                console.log(`   Health:   http://localhost:${PORT}/health`);
+                console.log(`   API:      http://localhost:${PORT}/api/research`);
+                console.log('\n   Use X-User-Id header for API authentication (dev mode)\n');
             }
         });
 

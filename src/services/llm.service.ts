@@ -21,11 +21,18 @@ class LLMService {
             messages: [
                 {
                     role: 'user',
-                    content: `You are an academic research assistant. Convert this user query into an optimized search query for finding academic papers. Extract key concepts, add relevant synonyms, and structure it for academic databases.
+                    content: `You are an academic research assistant. Convert this user query into a simple search query for Semantic Scholar API.
+
+IMPORTANT RULES:
+- Output 3-6 key terms separated by spaces
+- NO boolean operators (no AND, OR, NOT)
+- NO quotes or special characters
+- NO parentheses
+- Just simple keywords that capture the core topic
 
 User query: "${userQuery}"
 
-Respond with ONLY the refined search query, nothing else.`,
+Respond with ONLY the simple keyword query, nothing else.`,
                 },
             ],
         });
@@ -187,30 +194,44 @@ Be specific and cite which paper you're referring to.`,
     async answerQuestions(question: string, papers: Paper[]): Promise<string> {
         const paperContext = papers
             .map((p, idx) => {
-                return `[${idx + 1}] ${p.title}
-Abstract: ${p.abstract}`;
+                return `[${idx + 1}] "${p.title}"
+Authors: ${p.authors.map(a => a.name).join(', ')}
+Year: ${p.year || 'N/A'}
+Venue: ${p.venue || 'N/A'}
+Citations: ${p.citation_count || 0}
+Abstract: ${p.abstract || 'No abstract available'}
+---`;
             })
             .join('\n');
 
         const response = await this.client.chat.completions.create({
             model: this.MODEL,
-            max_tokens: 1024,
+            max_tokens: 2048,
             messages: [
                 {
+                    role: 'system',
+                    content: `You are an expert research assistant with access to a collection of academic papers. Your role is to provide accurate, well-informed answers based on the research papers provided. Always cite your sources using [1], [2], etc. Be specific and detailed in your responses.`,
+                },
+                {
                     role: 'user',
-                    content: `Based on these research papers, answer the following question.
+                    content: `I have collected ${papers.length} research papers on a topic. Here are the papers:
 
-Papers:
 ${paperContext}
 
-Question: ${question}
+Based on these papers, please answer the following question:
+"${question}"
 
-Provide a clear, well-cited answer using [1], [2], etc. to reference papers. If the papers don't contain enough information to answer, say so.`,
+Instructions:
+- Provide a comprehensive answer based on the paper contents
+- Use inline citations [1], [2], etc. to reference specific papers
+- If comparing findings across papers, note any agreements or disagreements
+- If the papers don't contain enough information, clearly state what's missing
+- Be specific about which paper supports each claim`,
                 },
             ],
         });
 
-        return response.choices[0]?.message?.content?.trim() || '';
+        return response.choices[0]?.message?.content?.trim() || 'Unable to generate response.';
     }
 }
 
