@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import dotenv from 'dotenv';
 import researchRoutes from './routes/research.routes';
+import agentRoutes from './routes/agent.routes';
 import { pool } from './config/database';
 import { logger } from './utils/logger';
 import { ensureTestUser } from './middleware/auth.middlware';
@@ -52,6 +53,7 @@ app.get('/health', async (req: Request, res: Response) => {
 });
 
 app.use('/api/research', researchRoutes);
+app.use('/api/agent', agentRoutes);
 
 app.use((req: Request, res: Response) => {
     res.status(404).json({

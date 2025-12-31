@@ -3,170 +3,774 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shodhak - Research Assistant</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Shodhak | Research Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fafafa;
+            --chat-bg: #ffffff;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- Header --- */
+        header {
+            background: var(--chat-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo svg {
+            color: var(--accent-color);
+        }
+
+        .header-actions button {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .header-actions button:hover {
+            background: #f3f4f6;
+            color: var(--text-primary);
+        }
+
+        /* --- Main Layout --- */
+        .app-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- Chat Area --- */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--bg-color);
+        }
+
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            scroll-behavior: smooth;
+        }
+
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            color: var(--text-secondary);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .welcome-screen h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .quick-action-btn {
+            background: var(--chat-bg);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--accent-color);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        /* Messages */
+        .message {
+            display: flex;
+            gap: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            opacity: 0;
+            animation: slideUp 0.3s forwards;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e0e7ff;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.8rem;
+        }
+
+        .message.user .avatar {
+            display: none;
+        }
+
+        .message-content {
+            padding: 0 1rem;
+            line-height: 1.6;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .message.user .message-content {
+            background: var(--chat-bg);
+            padding: 0.75rem 1rem;
+            border-radius: 12px 12px 0 12px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Tool Badges */
+        .message-meta {
+            margin-top: 0.75rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid #f0f0f0;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .tools-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+        }
+
+        .tool-badge {
+            background: #f3f4f6;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            border: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tool-badge svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        /* Markdown Styles */
+        .message-content strong { font-weight: 600; color: #111; }
+        .message-content code { background: #f3f4f6; padding: 0.1rem 0.3rem; border-radius: 4px; font-size: 0.9em; font-family: monospace; }
+        .message-content pre { background: #1f2937; color: #fff; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 0.5rem 0; }
+        .citation { color: var(--accent-color); font-weight: 500; cursor: pointer; font-size: 0.8em; vertical-align: super; }
+
+        /* --- Input Area --- */
+        .input-wrapper {
+            background: var(--bg-color);
+            padding: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+        }
+
+        .input-box {
+            background: var(--chat-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            padding: 0.75rem;
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
+            transition: border-color 0.2s;
+        }
+
+        .input-box:focus-within {
+            border-color: var(--accent-color);
+            ring: 2px solid rgba(59, 130, 246, 0.1);
+        }
+
+        textarea {
+            flex: 1;
+            border: none;
+            resize: none;
+            height: 24px;
+            max-height: 120px;
+            padding: 0.25rem;
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            background: transparent;
+        }
+
+        .send-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .send-btn:disabled {
+            background: #e5e7eb;
+            cursor: not-allowed;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: var(--accent-hover);
+        }
+
+        /* --- Status Indicator --- */
+        .status-indicator {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--chat-bg);
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-sm);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .status-indicator.active {
+            opacity: 1;
+        }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #e5e7eb;
+            border-top-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* --- Papers Panel --- */
+        .papers-panel {
+            width: 300px;
+            background: var(--chat-bg);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .papers-panel.collapsed {
+            width: 0;
+            border: none;
+        }
+
+        .panel-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .papers-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .paper-card {
+            background: var(--bg-color);
+            border: 1px solid transparent;
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .paper-card:hover {
+            background: white;
+            border-color: var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .paper-index {
+            color: var(--accent-color);
+            font-weight: 600;
+            margin-right: 4px;
+        }
+
+        .paper-meta {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+
+        /* Toggle Button */
+        .toggle-panel-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            z-index: 10;
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 0.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: none; /* Shown via JS logic or media query */
+        }
+
+        /* Animations */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .papers-panel {
+                position: absolute;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 20;
+                width: 85%;
+                box-shadow: -4px 0 10px rgba(0,0,0,0.1);
+            }
+            .papers-panel.collapsed {
+                transform: translateX(100%);
+                width: 85%; /* Keep width for animation */
+            }
+            .header-actions {
+                display: none;
+            }
+        }
+
+        .hidden { display: none !important; }
+    </style>
 </head>
 <body>
-    <div class="app">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h1>Shodhak</h1>
-                <span class="version">v1.0</span>
-            </div>
 
-            <button id="new-session-btn" class="new-session-btn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                New Research
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            Shodhak
+        </div>
+        <div class="header-actions">
+            <button id="toggle-papers-btn">
+                Papers (<span id="papers-count">0</span>)
             </button>
+            <button id="new-chat-btn">New Chat</button>
+        </div>
+    </header>
 
-            <div class="sessions-section">
-                <h3>Recent Sessions</h3>
-                <div id="sessions-list" class="sessions-list"></div>
-            </div>
-        </aside>
+    <div class="app-layout">
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Welcome Screen -->
-            <div id="welcome-screen" class="welcome-screen">
-                <div class="welcome-content">
-                    <h2>Welcome to Shodhak</h2>
-                    <p>AI-powered research assistant for academic literature</p>
-                    <form id="welcome-form" class="welcome-form">
-                        <input
-                            type="text"
-                            id="welcome-query"
-                            placeholder="What would you like to research today?"
-                            autocomplete="off"
-                        >
-                        <button type="submit">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
-                            Search Papers
-                        </button>
-                    </form>
-                    <div class="suggestions">
-                        <span>Try:</span>
-                        <button class="suggestion" data-query="machine learning healthcare NLP">ML in Healthcare</button>
-                        <button class="suggestion" data-query="transformer neural networks attention">Transformers</button>
-                        <button class="suggestion" data-query="climate change mitigation strategies">Climate Change</button>
+        <!-- Main Chat -->
+        <div class="chat-container">
+            <div id="messages-container" class="messages-area">
+                <!-- Welcome Screen -->
+                <div id="welcome-screen" class="welcome-screen">
+                    <h1>What shall we research today?</h1>
+                    <p>I can find papers, summarize research, and answer complex questions.</p>
+
+                    <div class="quick-actions">
+                        <div class="quick-action-btn" data-query="Find recent papers on transformer architectures">
+                            <strong>Find papers</strong><br>
+                            <span style="color:var(--text-secondary); font-size:0.8rem">on transformer architectures</span>
+                        </div>
+                        <div class="quick-action-btn" data-query="Summarize the key challenges in Large Language Models">
+                            <strong>Summarize</strong><br>
+                            <span style="color:var(--text-secondary); font-size:0.8rem">challenges in LLMs</span>
+                        </div>
+                        <div class="quick-action-btn" data-query="Compare RAG vs Fine-tuning for medical QA">
+                            <strong>Compare</strong><br>
+                            <span style="color:var(--text-secondary); font-size:0.8rem">RAG vs Fine-tuning</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Session View -->
-            <div id="session-view" class="session-view hidden">
-                <!-- Session Header -->
-                <div class="session-header">
-                    <div class="session-info">
-                        <h2 id="session-title">Research Session</h2>
-                        <div id="session-meta" class="session-meta"></div>
-                    </div>
-                    <div id="session-status" class="status-pill">initiated</div>
+            <!-- Input Area -->
+            <div class="input-wrapper">
+                <!-- Dynamic Status Indicator -->
+                <div id="status-indicator" class="status-indicator">
+                    <div class="spinner"></div>
+                    <span id="status-text">Thinking...</span>
                 </div>
 
-                <!-- Tabs -->
-                <div class="tabs">
-                    <button class="tab active" data-tab="papers">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
+                <form id="agent-form" class="input-box">
+                    <textarea id="agent-input" placeholder="Ask a research question..." rows="1"></textarea>
+                    <button type="submit" id="send-btn" class="send-btn" disabled>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                         </svg>
-                        Papers <span id="papers-count" class="count">0</span>
                     </button>
-                    <button class="tab" data-tab="chat">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                        </svg>
-                        Chat
-                    </button>
-                    <button class="tab" data-tab="report">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                        </svg>
-                        Report
-                    </button>
-                </div>
-
-                <!-- Tab Content -->
-                <div class="tab-content">
-                    <!-- Papers Tab -->
-                    <div id="papers-tab" class="tab-panel active">
-                        <div class="papers-toolbar">
-                            <div class="selection-info">
-                                <span id="selection-count">0 selected</span>
-                            </div>
-                            <div class="toolbar-actions">
-                                <button id="select-all-btn" class="btn-secondary">Select All</button>
-                                <button id="generate-btn" class="btn-primary">Generate Report</button>
-                            </div>
-                        </div>
-                        <div id="papers-list" class="papers-list"></div>
-                    </div>
-
-                    <!-- Chat Tab -->
-                    <div id="chat-tab" class="tab-panel hidden">
-                        <div id="chat-messages" class="chat-messages">
-                            <div class="chat-welcome">
-                                <p>Ask questions about the papers in this session.</p>
-                                <p class="hint">The AI will analyze the paper abstracts to answer your questions.</p>
-                            </div>
-                        </div>
-                        <form id="chat-form" class="chat-input-form">
-                            <input
-                                type="text"
-                                id="chat-input"
-                                placeholder="Ask about these papers..."
-                                autocomplete="off"
-                            >
-                            <button type="submit" id="chat-submit">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                                </svg>
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- Report Tab -->
-                    <div id="report-tab" class="tab-panel hidden">
-                        <div id="report-placeholder" class="report-placeholder">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                            </svg>
-                            <p>No report generated yet</p>
-                            <span>Select papers and click "Generate Report" to create a literature review</span>
-                        </div>
-                        <div id="report-content" class="report-content hidden"></div>
-                    </div>
-                </div>
+                </form>
             </div>
-        </main>
+        </div>
 
-        <!-- Loading Overlay -->
-        <div id="loading-overlay" class="loading-overlay hidden">
-            <div class="loading-content">
-                <div class="loading-spinner">
-                    <div class="spinner-ring"></div>
-                    <div class="spinner-ring"></div>
-                    <div class="spinner-ring"></div>
-                </div>
-                <p id="loading-text" class="loading-text">Loading...</p>
-                <div id="loading-progress" class="loading-progress hidden">
-                    <div id="progress-bar" class="progress-bar"></div>
+        <!-- Papers Panel -->
+        <div id="papers-panel" class="papers-panel collapsed">
+            <div class="panel-header">
+                <span>Papers in Context</span>
+                <button id="close-panel-btn" style="background:none; border:none; cursor:pointer;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div id="papers-list" class="papers-list">
+                <!-- Papers injected here -->
+                <div style="text-align:center; color:var(--text-secondary); margin-top:2rem;">
+                    No papers found yet.
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        // --- Configuration ---
+        const API_BASE = '/api/agent';
+        const USER_ID = '1';
+
+        // --- State ---
+        let sessionId = null;
+        let papers = [];
+        let isLoading = false;
+
+        // --- Tool Status Mapping ---
+        const TOOL_STATUS_MAP = {
+            'search_papers': 'Searching academic databases...',
+            'lookup_paper_by_doi': 'Looking up DOI...',
+            'search_similar_papers': 'Finding similar papers...',
+            'summarize_paper': 'Reading and summarizing...',
+            'compare_papers': 'Comparing methodologies...',
+            'generate_literature_review': 'Synthesizing literature review...',
+            'answer_question': 'Analyzing findings...',
+            'save_annotation': 'Saving annotation...',
+            'get_current_papers': 'Checking context...'
+        };
+
+        // --- DOM Elements ---
+        const els = {
+            messages: document.getElementById('messages-container'),
+            welcome: document.getElementById('welcome-screen'),
+            input: document.getElementById('agent-input'),
+            form: document.getElementById('agent-form'),
+            sendBtn: document.getElementById('send-btn'),
+            status: document.getElementById('status-indicator'),
+            statusText: document.getElementById('status-text'),
+            papersPanel: document.getElementById('papers-panel'),
+            papersList: document.getElementById('papers-list'),
+            papersCount: document.getElementById('papers-count'),
+            togglePapers: document.getElementById('toggle-papers-btn'),
+            closePanel: document.getElementById('close-panel-btn'),
+            newChat: document.getElementById('new-chat-btn')
+        };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Auto-resize textarea
+            els.input.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+                els.sendBtn.disabled = this.value.trim() === '';
+            });
+
+            els.input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!els.sendBtn.disabled) els.form.dispatchEvent(new Event('submit'));
+                }
+            });
+
+            els.form.addEventListener('submit', handleSubmit);
+            els.togglePapers.addEventListener('click', togglePanel);
+            els.closePanel.addEventListener('click', togglePanel);
+            els.newChat.addEventListener('click', startNewChat);
+
+            // Quick Actions
+            document.querySelectorAll('.quick-action-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    els.input.value = btn.dataset.query;
+                    els.sendBtn.disabled = false;
+                    handleSubmit(new Event('submit'));
+                });
+            });
+        });
+
+        // --- Core Logic ---
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            const message = els.input.value.trim();
+            if (!message || isLoading) return;
+
+            // UI Updates
+            els.welcome.classList.add('hidden');
+            addMessage(message, 'user');
+            els.input.value = '';
+            els.input.style.height = '24px';
+            setLoading(true);
+
+            // Determine initial status based on keywords (since API isn't streaming)
+            let initialStatus = "Thinking...";
+            const lowerMsg = message.toLowerCase();
+            if (lowerMsg.includes('find') || lowerMsg.includes('search')) initialStatus = TOOL_STATUS_MAP['search_papers'];
+            else if (lowerMsg.includes('summarize')) initialStatus = TOOL_STATUS_MAP['summarize_paper'];
+            else if (lowerMsg.includes('compare')) initialStatus = TOOL_STATUS_MAP['compare_papers'];
+
+            updateStatus(initialStatus);
+
+            try {
+                // Simulate status progression for UX
+                const statusTimer = setInterval(() => {
+                    if (!isLoading) { clearInterval(statusTimer); return; }
+                    // Cycle status if request takes long
+                    const current = els.statusText.textContent;
+                    if (current.includes('Searching')) updateStatus('Analyzing results...');
+                    else if (current.includes('Analyzing')) updateStatus('Formulating answer...');
+                }, 2500);
+
+                const response = await fetch(`${API_BASE}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-User-Id': USER_ID },
+                    body: JSON.stringify({ message, session_id: sessionId })
+                });
+
+                const data = await response.json();
+                clearInterval(statusTimer);
+
+                if (!response.ok) throw new Error(data.error || 'Network response was not ok');
+
+                // Update State
+                sessionId = data.session_id;
+
+                // Handle Papers
+                if (data.papers && data.papers.length > 0) {
+                    papers = data.papers; // Replace or merge depending on logic. Assuming replace context.
+                    updatePapersList();
+                    // Auto-open panel if new papers found
+                    if (els.papersPanel.classList.contains('collapsed')) togglePanel();
+                }
+
+                addMessage(data.response, 'assistant', data.metadata);
+
+            } catch (error) {
+                console.error(error);
+                addMessage(`I encountered an error: ${error.message}`, 'assistant', { error: true });
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // --- UI Functions ---
+
+        function addMessage(content, role, metadata = {}) {
+            const div = document.createElement('div');
+            div.className = `message ${role}`;
+
+            // Avatar for assistant
+            const avatarHtml = role === 'assistant'
+                ? `<div class="avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div>`
+                : '';
+
+            let toolsHtml = '';
+            if (role === 'assistant' && metadata.tools_used && metadata.tools_used.length > 0) {
+                const badges = metadata.tools_used.map(tool => {
+                    // Clean tool name
+                    const name = tool.replace(/_/g, ' ');
+                    return `<span class="tool-badge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                        ${name}
+                    </span>`;
+                }).join('');
+
+                toolsHtml = `
+                    <div class="message-meta">
+                        <div style="margin-bottom:4px">Process:</div>
+                        <div class="tools-list">${badges}</div>
+                    </div>`;
+            }
+
+            div.innerHTML = `
+                ${avatarHtml}
+                <div class="message-content">
+                    ${formatText(content)}
+                    ${toolsHtml}
+                </div>
+            `;
+
+            els.messages.appendChild(div);
+            scrollToBottom();
+        }
+
+        function formatText(text) {
+            if (!text) return '';
+            return text
+                .replace(/</g, '&lt;').replace(/>/g, '&gt;') // Escape HTML
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/`(.*?)`/g, '<code>$1</code>')
+                .replace(/\[(\d+)\]/g, '<span class="citation" onclick="highlightPaper($1)">[$1]</span>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function updatePapersList() {
+            els.papersCount.textContent = papers.length;
+            if (papers.length === 0) {
+                els.papersList.innerHTML = '<div style="text-align:center; color:var(--text-secondary); margin-top:2rem;">No papers context.</div>';
+                return;
+            }
+
+            els.papersList.innerHTML = papers.map((paper, idx) => `
+                <div class="paper-card" onclick="pasteCitation(${idx})">
+                    <div style="display:flex; justify-content:space-between">
+                        <span class="paper-index">[${idx}]</span>
+                        <span style="font-size:0.7rem; color:#9ca3af">${paper.year || 'N/A'}</span>
+                    </div>
+                    <div style="font-weight:500; margin-bottom:2px;">${paper.title}</div>
+                    <div class="paper-meta">${paper.authors ? paper.authors.substring(0, 50) + '...' : 'Unknown'}</div>
+                </div>
+            `).join('');
+        }
+
+        function updateStatus(text) {
+            els.statusText.textContent = text;
+        }
+
+        function setLoading(loading) {
+            isLoading = loading;
+            els.sendBtn.disabled = loading;
+            els.input.disabled = loading;
+            if (loading) {
+                els.status.classList.add('active');
+            } else {
+                els.status.classList.remove('active');
+                els.input.focus();
+            }
+        }
+
+        function togglePanel() {
+            els.papersPanel.classList.toggle('collapsed');
+        }
+
+        function startNewChat() {
+            sessionId = null;
+            papers = [];
+            els.messages.innerHTML = '';
+            els.messages.appendChild(els.welcome);
+            els.welcome.classList.remove('hidden');
+            updatePapersList();
+            els.papersPanel.classList.add('collapsed');
+        }
+
+        function scrollToBottom() {
+            els.messages.scrollTop = els.messages.scrollHeight;
+        }
+
+        // Global function for citation clicks
+        window.highlightPaper = function(index) {
+            if(els.papersPanel.classList.contains('collapsed')) togglePanel();
+            // In a real app, this would scroll to the paper card
+        };
+
+        window.pasteCitation = function(index) {
+            // Optional: Click paper to ask about it
+            // els.input.value += ` [${index}]`;
+        };
+    </script>
 </body>
 </html>
