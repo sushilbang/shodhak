@@ -3,6 +3,7 @@ import { AgentContext, ChatMessage, AgentResponse } from '../types/agent.types';
 import { AGENT_TOOLS, toolExecutor } from './agent-tools';
 import { contextManager } from './agent-context';
 import { logger } from '../utils/logger';
+import { createLLMClient, LLMProvider } from '../benchmark/utils/llm-client.factory';
 
 const SYSTEM_PROMPT = `You are Shodhak, an intelligent research assistant specialized in academic literature research. You help users find, analyze, and synthesize academic papers.
 
@@ -14,10 +15,13 @@ You have access to tools for:
 4. **Knowledge management**: Save and search user annotations
 
 ## Guidelines
-- When a user asks about a research topic, search for relevant papers first
+- When a user asks about a research topic, FIRST ask 2-3 clarifying questions to understand:
+  * What specific aspect of the topic they're interested in
+  * What time period or recency they need (recent papers vs foundational work)
+  * Their purpose (literature review, finding methods, understanding concepts)
+- After getting clarification, search for relevant papers
 - After finding papers, offer to summarize, compare, or analyze them
 - Always cite papers by their index [0], [1], etc. when discussing their content
-- If the user's request is unclear, ask clarifying questions before proceeding
 - Be proactive in suggesting useful analyses based on the collected papers
 - When generating reviews or comparisons, use the available tools rather than generating content without them
 
@@ -31,13 +35,14 @@ export class AgentService {
     private client: OpenAI;
     private readonly MODEL: string;
     private readonly MAX_ITERATIONS = 10;
+    private readonly provider: LLMProvider;
 
     constructor() {
-        this.client = new OpenAI({
-            baseURL: process.env.OLLAMA_URL || 'http://localhost:11434/v1',
-            apiKey: 'ollama',
-        });
-        this.MODEL = process.env.OLLAMA_MODEL || 'llama3.2';
+        const { client, model, provider } = createLLMClient();
+        this.client = client;
+        this.MODEL = model;
+        this.provider = provider;
+        logger.info('Agent service initialized', { provider, model });
     }
 
     async chat(

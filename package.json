@@ -6,7 +6,14 @@
     "dev": "nodemon --exec ts-node src/server.ts",
     "start": "ts-node src/server.ts",
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "migrate": "psql $DATABASE_URL -f schema.sql",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "bench": "ts-node src/benchmark/index.ts",
+    "bench:retrieval": "ts-node src/benchmark/runners/retrieval-bench.ts",
+    "bench:generation": "ts-node src/benchmark/runners/generation-bench.ts",
+    "bench:compare": "ts-node src/benchmark/runners/comparative-bench.ts",
+    "bench:search": "ts-node src/benchmark/runners/search-improvement-bench.ts"
   },
   "keywords": [],
   "author": "",
@@ -17,9 +24,11 @@
     "@types/express": "^5.0.6",
     "@types/node": "^24.10.2",
     "@types/uuid": "^10.0.0",
+    "@vitest/coverage-v8": "^4.0.18",
     "nodemon": "^3.1.11",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",

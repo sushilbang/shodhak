@@ -76,7 +76,7 @@ export interface Report {
     content: string;
     report_type: 'literature_review' | 'summary' | 'comparison';
     citations: Citation[];
-    craeted_at: Date;
+    created_at: Date;
 }
 
 export interface SemanticScholarPaper {

@@ -1,17 +1,20 @@
 import OpenAI from 'openai';
 import { logger } from '../utils/logger';
 import { Paper, Citation } from '../models/database.models';
+import { createLLMClient, LLMProvider } from '../benchmark/utils/llm-client.factory';
 
 class LLMService {
     private client: OpenAI;
-    private readonly MODEL = process.env.OLLAMA_MODEL || 'llama3.2';
+    private readonly MODEL: string;
     private readonly MAX_TOKENS = 4096;
+    private readonly provider: LLMProvider;
 
     constructor() {
-        this.client = new OpenAI({
-            baseURL: process.env.OLLAMA_URL || 'http://localhost:11434/v1',
-            apiKey: 'ollama',
-        });
+        const { client, model, provider } = createLLMClient();
+        this.client = client;
+        this.MODEL = model;
+        this.provider = provider;
+        logger.info('LLM service initialized', { provider, model });
     }
 
     async refineQuery(userQuery: string): Promise<string> {

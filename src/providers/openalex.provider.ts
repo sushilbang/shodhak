@@ -97,7 +97,7 @@ export class OpenAlexProvider implements PaperProvider {
     }
 
     private normalizeWork(work: OpenAlexWork): RawPaperResult {
-        const oaId = work.id.replace('https://openalex.org/', '');
+        const oaId = work.id?.replace('https://openalex.org/', '') || `unknown-${Date.now()}`;
         let doi = work.doi;
         if (doi?.startsWith('https://doi.org/')) {
             doi = doi.replace('https://doi.org/', '');
@@ -106,10 +106,12 @@ export class OpenAlexProvider implements PaperProvider {
         return {
             id: oaId,
             title: work.title || 'Untitled',
-            authors: work.authorships.map(a => ({
-                name: a.author.display_name,
-                id: a.author.id.replace('https://openalex.org/', ''),
-            })),
+            authors: (work.authorships || [])
+                .filter(a => a?.author?.display_name)
+                .map(a => ({
+                    name: a.author.display_name,
+                    id: a.author.id?.replace('https://openalex.org/', '') || '',
+                })),
             abstract: reconstructAbstract(work.abstract_inverted_index),
             url: work.primary_location?.landing_page_url ||
                 work.open_access?.oa_url ||
@@ -142,7 +144,9 @@ export class OpenAlexProvider implements PaperProvider {
                 totalCount: response.data.meta.count,
             });
 
-            return response.data.results.map(work => this.normalizeWork(work));
+            return response.data.results
+                .filter(work => work && work.title)
+                .map(work => this.normalizeWork(work));
         } catch (error) {
             const axiosError = error as AxiosError;
             logger.error('OpenAlex search failed', {
