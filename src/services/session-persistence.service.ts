@@ -118,7 +118,6 @@ class SessionPersistenceService {
     }
 
     // --- Compression persistence ---
-
     async saveSummary(
         sessionId: string,
         content: string,

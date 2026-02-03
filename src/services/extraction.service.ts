@@ -3,9 +3,6 @@ import { ExtractionResult, PaperSection } from '../types/agent.types';
 import { logger } from '../utils/logger';
 
 class ExtractionService {
-    /**
-     * Extract full paper content. Currently a stub — returns null.
-     */
     async extractPaperContent(paper: Paper): Promise<ExtractionResult | null> {
         logger.warn('extractPaperContent is a stub — not yet implemented', {
             paperId: paper.id,
@@ -15,25 +12,16 @@ class ExtractionService {
         return null;
     }
 
-    /**
-     * Extract content from a PDF URL. Currently a stub — returns null.
-     */
     async extractFromPdfUrl(url: string): Promise<string | null> {
         logger.warn('extractFromPdfUrl is a stub — not yet implemented', { url });
         return null;
     }
 
-    /**
-     * Extract content from an HTML page. Currently a stub — returns null.
-     */
     async extractFromHtml(url: string): Promise<string | null> {
         logger.warn('extractFromHtml is a stub — not yet implemented', { url });
         return null;
     }
 
-    /**
-     * Parse raw text into sections. Currently a stub — returns empty array.
-     */
     parseSections(rawText: string): PaperSection[] {
         logger.warn('parseSections is a stub — not yet implemented', {
             textLength: rawText.length,
@@ -41,9 +29,6 @@ class ExtractionService {
         return [];
     }
 
-    /**
-     * Check if a paper's URL matches extractable patterns (arxiv, .pdf, doi.org).
-     */
     canExtract(paper: Paper): boolean {
         if (!paper.url) return false;
 

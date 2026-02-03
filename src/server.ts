@@ -2,7 +2,6 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import path from 'path';
 import dotenv from 'dotenv';
-import researchRoutes from './routes/research.routes';
 import agentRoutes from './routes/agent.routes';
 import { pool } from './config/database';
 import { logger } from './utils/logger';
@@ -52,7 +51,6 @@ app.get('/health', async (req: Request, res: Response) => {
     }
 });
 
-app.use('/api/research', researchRoutes);
 app.use('/api/agent', agentRoutes);
 
 app.use((req: Request, res: Response) => {
@@ -99,13 +97,13 @@ const startServer = async (): Promise<void> => {
         app.listen(PORT, () => {
             logger.info(`Server started on port ${PORT}`);
             logger.info(`Health check: http://localhost:${PORT}/health`);
-            logger.info(`API base: http://localhost:${PORT}/api/research`);
+            logger.info(`API base: http://localhost:${PORT}/api/agent`);
 
             if (process.env.NODE_ENV === 'development') {
                 console.log('\n Shodhak Research Assistant Ready!');
                 console.log(`   Frontend: http://localhost:${PORT}`);
                 console.log(`   Health:   http://localhost:${PORT}/health`);
-                console.log(`   API:      http://localhost:${PORT}/api/research`);
+                console.log(`   API:      http://localhost:${PORT}/api/agent`);
                 console.log('\n   Use X-User-Id header for API authentication (dev mode)\n');
             }
         });

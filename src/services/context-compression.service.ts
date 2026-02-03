@@ -22,10 +22,7 @@ class ContextCompressionService {
         this.model = model;
     }
 
-    /**
-     * Check if compression is needed and compress if so.
-     * Triggered after each message addition.
-     */
+    //Check if compression is needed and compress if so. Triggered after each message addition.
     async maybeCompress(context: AgentContext): Promise<void> {
         const totalMessages = context.conversationHistory.length;
 
@@ -119,13 +116,11 @@ class ContextCompressionService {
             logger.error('Context compression failed', { sessionId: context.sessionId, error: err });
         }
     }
-
-    /**
-     * Build the compressed context message array for LLM calls.
-     * 1. System prompt enriched with key facts
-     * 2. Running summaries as system messages
-     * 3. Last RECENT_BUFFER_SIZE verbatim messages
-     */
+    
+    // Build the compressed context message array for LLM calls.
+    // 1. System prompt enriched with key facts
+    // 2. Running summaries as system messages
+    // 3. Last RECENT_BUFFER_SIZE verbatim messages
     buildCompressedContext(systemPrompt: string, context: AgentContext): ChatMessage[] {
         const messages: ChatMessage[] = [];
 

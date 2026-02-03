@@ -13,14 +13,6 @@ import { getLimiter } from '../utils/concurrency-limiter';
 
 type ProviderName = 'openalex' | 'semantic_scholar' | 'crossref';
 
-/**
- * SearchService orchestrates multiple paper providers.
- *
- * - Uses PRIMARY_PAPER_PROVIDER env var to select the main search backend (default: openalex)
- * - Semantic Scholar can be used for enrichment (adds abstracts/citations when missing)
- * - Crossref is used as DOI-based fallback for missing metadata
- * - All results are cached in the database with the normalized Paper shape
- */
 class SearchService {
     private providers: Map<ProviderName, PaperProvider>;
     private primaryProvider: PaperProvider;
@@ -45,9 +37,7 @@ class SearchService {
         logger.info(`Search service initialized with primary provider: ${this.primaryProvider.name}`);
     }
 
-    /**
-     * Execute a provider operation with concurrency limiting
-     */
+    // Execute a provider operation with concurrency limiting
     private async withConcurrencyLimit<T>(
         provider: PaperProvider,
         operation: () => Promise<T>
@@ -56,10 +46,8 @@ class SearchService {
         return limiter.execute(operation);
     }
 
-    /**
-     * Search papers using the primary provider
-     * Maintains the original contract: searchService.searchPapers(query, limit)
-     */
+    // Search papers using the primary provider
+    // Maintains the original contract: searchService.searchPapers(query, limit)
     async searchPapers(query: string, limit: number = 10): Promise<Paper[]> {
         try {
             logger.info('Searching papers', { query, limit, provider: this.primaryProvider.name });
@@ -85,10 +73,8 @@ class SearchService {
         }
     }
 
-    /**
-     * Try to enrich paper data using available providers
-     * Priority: Semantic Scholar (for abstracts) -> Crossref (for metadata)
-     */
+    // Try to enrich paper data using available providers
+    // Priority: Semantic Scholar (for abstracts) -> Crossref (for metadata)
     private async tryEnrichPaper(paper: Paper): Promise<Partial<Paper> | null> {
         if (!paper.doi) return null;
 
@@ -139,9 +125,7 @@ class SearchService {
         return Object.keys(enrichment).length > 0 ? enrichment : null;
     }
 
-    /**
-     * Lookup a paper by DOI using available providers
-     */
+    // Lookup a paper by DOI using available providers
     async lookupByDoi(doi: string): Promise<Paper | null> {
         // Try primary provider first
         if (this.primaryProvider.lookupByDoi) {
@@ -181,10 +165,8 @@ class SearchService {
         return null;
     }
 
-    /**
-     * Get paper details by external ID (provider-specific ID)
-     * For backwards compatibility with Semantic Scholar paper IDs
-     */
+    // Get paper details by external ID (provider-specific ID)
+    // For backwards compatibility with Semantic Scholar paper IDs
     async getPaperDetails(paperId: string): Promise<Paper | null> {
         const ssProvider = this.providers.get('semantic_scholar') as SemanticScholarProvider;
         try {
@@ -203,9 +185,7 @@ class SearchService {
         return null;
     }
 
-    /**
-     * Save paper to database if it doesn't exist
-     */
+    //Save paper to database if it doesn't exist
     async savePaperIfNotExists(paper: Paper): Promise<number> {
         const existing = await pool.query(
             'SELECT id FROM papers WHERE external_id = $1',
@@ -244,9 +224,7 @@ class SearchService {
         return result.rows[0].id;
     }
 
-    /**
-     * Get paper from database by external ID
-     */
+    // Get paper from database by external ID
     async getPaperByExternalId(external_id: string): Promise<Paper | null> {
         const result = await pool.query(
             'SELECT * FROM papers WHERE external_id = $1',
@@ -274,9 +252,7 @@ class SearchService {
         };
     }
 
-    /**
-     * Get the current primary provider name
-     */
+    // Get the current primary provider name
     getPrimaryProviderName(): string {
         return this.primaryProvider.name;
     }

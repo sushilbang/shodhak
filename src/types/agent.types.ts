@@ -36,7 +36,6 @@ export interface ToolDefinition {
 }
 
 // --- Context Compression / Memory Types ---
-
 export interface ConversationSummary {
     content: string;
     messageRange: { from: number; to: number };
@@ -74,12 +73,14 @@ export interface AgentContext {
     };
     memoryState: MemoryState;
 }
+
 // Tool execution result
 export interface ToolResult {
     success: boolean;
     data?: any;
     error?: string;
 }
+
 // Agent response
 export interface AgentResponse {
     sessionId: string;
@@ -89,35 +90,8 @@ export interface AgentResponse {
     iterationCount: number;
     done: boolean;
 }
-// API request/response types
-export interface AgentChatRequest {
-    message: string;
-    session_id?: string;
-}
-
-export interface AgentChatResponse {
-    session_id: string;
-    response: string;
-    papers?: PaperSummary[];
-    metadata: {
-        tools_used: string[];
-        iterations: number;
-        papers_in_context: number;
-        completed: boolean;
-    };
-}
-
-export interface PaperSummary {
-    index: number;
-    title: string;
-    authors: string;
-    year?: number;
-    abstract?: string;
-    doi?: string;
-}
 
 // --- Extraction Types ---
-
 export interface PaperSection {
     title: string;
     content: string;

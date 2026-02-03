@@ -8,3 +8,5 @@ error.log
 /.wrangler
 /docs
 /reports
+/dist
+/logs

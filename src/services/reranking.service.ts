@@ -1,10 +1,3 @@
-/**
- * Re-ranking Service
- *
- * Re-ranks search results using semantic similarity between
- * the query and paper content (title + abstract).
- */
-
 import { embeddingService } from './embedding.service';
 import { Paper } from '../models/database.models';
 import { logger } from '../utils/logger';
@@ -41,9 +34,6 @@ class RerankingService {
         logger.info('Reranking service initialized', { config: this.config });
     }
 
-    /**
-     * Re-rank papers based on semantic similarity to query
-     */
     async rerankPapers(
         query: string,
         papers: Paper[],
@@ -130,9 +120,7 @@ class RerankingService {
         }
     }
 
-    /**
-     * Calculate keyword overlap score
-     */
+    // Calculate keyword overlap score
     private calculateKeywordScore(query: string, paper: Paper): number {
         const queryTerms = this.tokenize(query);
         const paperTerms = this.tokenize(`${paper.title} ${paper.abstract || ''}`);
@@ -143,9 +131,7 @@ class RerankingService {
         return matches.length / queryTerms.length;
     }
 
-    /**
-     * Simple tokenization
-     */
+    // Simple tokenization
     private tokenize(text: string): string[] {
         return text
             .toLowerCase()
@@ -154,9 +140,7 @@ class RerankingService {
             .filter(t => t.length > 2);
     }
 
-    /**
-     * Cosine similarity between two vectors
-     */
+    // Cosine similarity between two vectors
     private cosineSimilarity(a: number[], b: number[]): number {
         if (a.length !== b.length) {
             logger.warn('Embedding dimension mismatch in reranking');
@@ -177,17 +161,11 @@ class RerankingService {
         return denominator === 0 ? 0 : dotProduct / denominator;
     }
 
-    /**
-     * Update configuration
-     */
     updateConfig(config: Partial<RerankingConfig>): void {
         this.config = { ...this.config, ...config };
         logger.info('Reranking config updated', { config: this.config });
     }
 
-    /**
-     * Get current configuration
-     */
     getConfig(): RerankingConfig {
         return { ...this.config };
     }

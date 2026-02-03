@@ -1,10 +1,3 @@
-/**
- * Enhanced Search Service
- *
- * Combines query expansion, multi-query search, and re-ranking
- * for improved search quality.
- */
-
 import { searchService } from './search.service';
 import { queryExpansionService } from './query-expansion.service';
 import { rerankingService, RankedPaper } from './reranking.service';

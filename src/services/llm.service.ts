@@ -38,7 +38,6 @@ class LLMService {
     }
 
     // --- Simple tasks use fast model ---
-
     async refineQuery(userQuery: string): Promise<string> {
         const response = await this.fastClient.chat.completions.create({
             model: this.fastModel,
@@ -119,7 +118,6 @@ Provide a concise summary.`,
     }
 
     // --- Complex tasks use reasoning model ---
-
     async generateLiteratureReview(
         papers: Paper[],
         query: string

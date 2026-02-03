@@ -1,10 +1,3 @@
-/**
- * Query Expansion Service
- *
- * Expands user queries with synonyms, related terms, and academic vocabulary
- * to improve recall in paper search.
- */
-
 import OpenAI from 'openai';
 import { logger } from '../utils/logger';
 import { createFastClient, LLMProvider } from '../benchmark/utils/llm-client.factory';
@@ -32,9 +25,7 @@ class QueryExpansionService {
         logger.info('Query expansion service initialized', { provider, model });
     }
 
-    /**
-     * Expand a query with related terms and synonyms
-     */
+    // Expand a query with related terms and synonyms
     async expandQuery(query: string): Promise<ExpandedQuery> {
         // Check cache first
         const cacheKey = query.toLowerCase().trim();
@@ -137,9 +128,7 @@ IMPORTANT: Respond with ONLY valid JSON, no markdown, no code blocks, no explana
         }
     }
 
-    /**
-     * Generate multiple query variants for parallel search
-     */
+    // Generate multiple query variants for parallel search
     async generateQueryVariants(query: string, count: number = 3): Promise<string[]> {
         const expanded = await this.expandQuery(query);
 
@@ -166,17 +155,13 @@ IMPORTANT: Respond with ONLY valid JSON, no markdown, no code blocks, no explana
         return variants.slice(0, count);
     }
 
-    /**
-     * Clear the cache
-     */
+    // clear cache
     clearCache(): void {
         this.cache.clear();
         logger.info('Query expansion cache cleared');
     }
 
-    /**
-     * Get cache stats
-     */
+    // get cache status
     getCacheStats(): { size: number; queries: string[] } {
         return {
             size: this.cache.size,
