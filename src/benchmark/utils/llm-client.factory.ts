@@ -5,7 +5,7 @@
 
 import OpenAI from 'openai';
 
-export type LLMProvider = 'ollama' | 'groq' | 'openai';
+export type LLMProvider = 'groq' | 'openai';
 
 export interface LLMClientConfig {
     provider: LLMProvider;
@@ -21,13 +21,11 @@ export interface LLMClientResult {
 }
 
 const DEFAULT_MODELS: Record<LLMProvider, string> = {
-    ollama: 'llama3.2',
     groq: 'qwen/qwen3-32b',
     openai: 'gpt-4o-mini'
 };
 
 const DEFAULT_BASE_URLS: Record<LLMProvider, string | undefined> = {
-    ollama: 'http://localhost:11434/v1',
     groq: 'https://api.groq.com/openai/v1',
     openai: undefined
 };
@@ -36,30 +34,24 @@ const DEFAULT_BASE_URLS: Record<LLMProvider, string | undefined> = {
  * Create an OpenAI-compatible client for any supported LLM provider
  */
 export function createLLMClient(config?: Partial<LLMClientConfig>): LLMClientResult {
-    const provider = (config?.provider || process.env.LLM_PROVIDER || 'ollama') as LLMProvider;
+    const provider = (config?.provider || process.env.LLM_PROVIDER || 'groq') as LLMProvider;
 
     let apiKey: string;
     let baseURL: string | undefined;
     let model: string;
 
     switch (provider) {
-        case 'groq':
-            apiKey = config?.apiKey || process.env.GROQ_API_KEY || '';
-            baseURL = config?.baseURL || DEFAULT_BASE_URLS.groq;
-            model = config?.model || process.env.GROQ_MODEL || DEFAULT_MODELS.groq;
-            break;
-
         case 'openai':
             apiKey = config?.apiKey || process.env.OPENAI_API_KEY || '';
             baseURL = config?.baseURL || DEFAULT_BASE_URLS.openai;
             model = config?.model || process.env.OPENAI_MODEL || DEFAULT_MODELS.openai;
             break;
 
-        case 'ollama':
+        case 'groq':
         default:
-            apiKey = 'ollama';
-            baseURL = config?.baseURL || process.env.OLLAMA_URL || DEFAULT_BASE_URLS.ollama;
-            model = config?.model || process.env.OLLAMA_MODEL || DEFAULT_MODELS.ollama;
+            apiKey = config?.apiKey || process.env.GROQ_API_KEY || '';
+            baseURL = config?.baseURL || DEFAULT_BASE_URLS.groq;
+            model = config?.model || process.env.GROQ_MODEL || DEFAULT_MODELS.groq;
             break;
     }
 
@@ -69,6 +61,24 @@ export function createLLMClient(config?: Partial<LLMClientConfig>): LLMClientRes
     });
 
     return { client, model, provider };
+}
+
+/**
+ * Create a reasoning client (for complex tasks like literature reviews, comparisons)
+ * Uses GROQ_REASONING_MODEL env var, defaults to qwen/qwen3-32b
+ */
+export function createReasoningClient(): LLMClientResult {
+    const model = process.env.GROQ_REASONING_MODEL || 'qwen/qwen3-32b';
+    return createLLMClient({ provider: 'groq', model });
+}
+
+/**
+ * Create a fast client (for simple tasks like query refinement, summarization)
+ * Uses GROQ_FAST_MODEL env var, defaults to llama-3.3-70b-versatile
+ */
+export function createFastClient(): LLMClientResult {
+    const model = process.env.GROQ_FAST_MODEL || 'llama-3.3-70b-versatile';
+    return createLLMClient({ provider: 'groq', model });
 }
 
 /**
@@ -92,12 +102,6 @@ export function getAvailableConfigs(): LLMClientConfig[] {
             model: process.env.OPENAI_MODEL || DEFAULT_MODELS.openai
         });
     }
-
-    // Ollama is always available (local)
-    configs.push({
-        provider: 'ollama',
-        model: process.env.OLLAMA_MODEL || DEFAULT_MODELS.ollama
-    });
 
     return configs;
 }

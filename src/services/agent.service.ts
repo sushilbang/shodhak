@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import { AgentContext, ChatMessage, AgentResponse } from '../types/agent.types';
 import { AGENT_TOOLS, toolExecutor } from './agent-tools';
 import { contextManager } from './agent-context';
+import { contextCompression } from './context-compression.service';
 import { logger } from '../utils/logger';
 import { createLLMClient, LLMProvider } from '../benchmark/utils/llm-client.factory';
 
@@ -15,11 +16,8 @@ You have access to tools for:
 4. **Knowledge management**: Save and search user annotations
 
 ## Guidelines
-- When a user asks about a research topic, FIRST ask 2-3 clarifying questions to understand:
-  * What specific aspect of the topic they're interested in
-  * What time period or recency they need (recent papers vs foundational work)
-  * Their purpose (literature review, finding methods, understanding concepts)
-- After getting clarification, search for relevant papers
+- When a user explicitly asks to search or find papers, DO IT IMMEDIATELY using search_papers. Do not ask clarifying questions first.
+- Only ask clarifying questions when the user's request is genuinely ambiguous or very broad (e.g., "help me with my research").
 - After finding papers, offer to summarize, compare, or analyze them
 - Always cite papers by their index [0], [1], etc. when discussing their content
 - Be proactive in suggesting useful analyses based on the collected papers
@@ -53,25 +51,31 @@ export class AgentService {
         // Get or create context
         let context: AgentContext;
         if (sessionId) {
-            const existing = contextManager.getContext(sessionId);
+            const existing = await contextManager.getContext(sessionId);
             if (existing && existing.userId === userId) {
                 context = existing;
             } else {
-                context = contextManager.createContext(userId);
+                context = await contextManager.createContext(userId);
             }
         } else {
-            context = contextManager.createContext(userId);
+            context = await contextManager.createContext(userId);
         }
 
         // Add user message to history
         const userMessage: ChatMessage = { role: 'user', content: message };
-        contextManager.addMessage(context, userMessage);
+        await contextManager.addMessage(context, userMessage);
+
+        // Run compression check after adding message
+        await contextCompression.maybeCompress(context);
 
         // Build messages array for API call
         const messages = this.buildMessages(context);
 
         // Run the agent loop
         const response = await this.runAgentLoop(context, messages);
+
+        // Persist metadata after loop completes
+        await contextManager.persistMetadata(context);
 
         return {
             ...response,
@@ -80,6 +84,12 @@ export class AgentService {
     }
 
     private buildMessages(context: AgentContext): ChatMessage[] {
+        // Use compressed context if summaries exist
+        if (context.memoryState.summaries.length > 0) {
+            return contextCompression.buildCompressedContext(SYSTEM_PROMPT, context);
+        }
+
+        // Fallback to simple last-20 approach
         const contextSummary = contextManager.buildContextSummary(context);
 
         const systemMessage: ChatMessage = {
@@ -87,7 +97,6 @@ export class AgentService {
             content: SYSTEM_PROMPT + contextSummary
         };
 
-        // Include conversation history (limit to recent messages to avoid token limits)
         const recentHistory = context.conversationHistory.slice(-20);
 
         return [systemMessage, ...recentHistory];
@@ -142,7 +151,7 @@ export class AgentService {
                             }
                         }))
                     };
-                    contextManager.addMessage(context, toolCallMessage);
+                    await contextManager.addMessage(context, toolCallMessage);
                     messages.push(toolCallMessage);
 
                     // Execute each tool call
@@ -176,7 +185,7 @@ export class AgentService {
                             tool_call_id: toolCall.id,
                             content: JSON.stringify(result)
                         };
-                        contextManager.addMessage(context, toolResultMessage);
+                        await contextManager.addMessage(context, toolResultMessage);
                         messages.push(toolResultMessage);
                     }
 
@@ -199,12 +208,12 @@ export class AgentService {
                     const result = await toolExecutor.execute(textToolCall.name, textToolCall.parameters, context);
 
                     // Add assistant message and tool result
-                    contextManager.addMessage(context, { role: 'assistant', content });
+                    await contextManager.addMessage(context, { role: 'assistant', content });
                     messages.push({ role: 'assistant', content });
 
                     // Add result as user message (since we don't have proper tool_call_id)
                     const resultMessage = `Tool "${textToolCall.name}" result: ${JSON.stringify(result.data || result.error, null, 2)}`;
-                    contextManager.addMessage(context, { role: 'user', content: resultMessage });
+                    await contextManager.addMessage(context, { role: 'user', content: resultMessage });
                     messages.push({ role: 'user', content: resultMessage });
 
                     // Continue loop
@@ -219,7 +228,10 @@ export class AgentService {
                     role: 'assistant',
                     content: finalContent
                 };
-                contextManager.addMessage(context, finalMessage);
+                await contextManager.addMessage(context, finalMessage);
+
+                // Run compression after final response
+                await contextCompression.maybeCompress(context);
 
                 return {
                     message: finalContent,
@@ -245,7 +257,7 @@ export class AgentService {
 
                 // Return error message to user instead of throwing
                 return {
-                    message: `Error: ${errorMessage}. Make sure Ollama is running and the model supports function calling.`,
+                    message: `Error: ${errorMessage}. Please check your LLM provider configuration and API keys.`,
                     papers: context.papers,
                     toolsUsed: [...new Set(toolsUsed)],
                     iterationCount: iterations,
@@ -299,7 +311,7 @@ export class AgentService {
 
         const content = response.choices[0]?.message?.content || 'I apologize, I encountered an issue processing your request.';
 
-        contextManager.addMessage(context, { role: 'assistant', content });
+        await contextManager.addMessage(context, { role: 'assistant', content });
 
         return {
             message: content,
@@ -319,19 +331,13 @@ export class AgentService {
                 let jsonStr = jsonMatch[0];
 
                 // Fix common malformed JSON issues from LLMs
-                // Remove errant backslashes before quotes (e.g., "parameters\":{\")
                 jsonStr = jsonStr.replace(/\\+"/g, '"');
-                // Also handle the pattern "key\":  with backslash before colon
                 jsonStr = jsonStr.replace(/"(\w+)\\+":/g, '"$1":');
-                // Replace "parameters"= or "arguments"= with proper colon
                 jsonStr = jsonStr.replace(/"parameters"\s*=/g, '"parameters":');
                 jsonStr = jsonStr.replace(/"arguments"\s*=/g, '"arguments":');
-                // Fix missing colon (e.g., "parameters {" -> "parameters": {)
                 jsonStr = jsonStr.replace(/"parameters"\s*\{/g, '"parameters": {');
                 jsonStr = jsonStr.replace(/"arguments"\s*\{/g, '"arguments": {');
-                // Fix any other key= patterns
                 jsonStr = jsonStr.replace(/"(\w+)"\s*=/g, '"$1":');
-                // Clean up any double colons that might result
                 jsonStr = jsonStr.replace(/:+/g, ':');
 
                 const parsed = JSON.parse(jsonStr);
@@ -349,8 +355,8 @@ export class AgentService {
     }
 
     // Get session info
-    getSession(sessionId: string, userId: number): AgentContext | null {
-        const context = contextManager.getContext(sessionId);
+    async getSession(sessionId: string, userId: number): Promise<AgentContext | null> {
+        const context = await contextManager.getContext(sessionId);
         if (context && context.userId === userId) {
             return context;
         }
@@ -358,7 +364,7 @@ export class AgentService {
     }
 
     // End session
-    endSession(sessionId: string): boolean {
+    async endSession(sessionId: string): Promise<boolean> {
         return contextManager.deleteContext(sessionId);
     }
 }

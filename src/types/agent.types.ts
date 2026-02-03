@@ -34,6 +34,31 @@ export interface ToolDefinition {
         };
     };
 }
+
+// --- Context Compression / Memory Types ---
+
+export interface ConversationSummary {
+    content: string;
+    messageRange: { from: number; to: number };
+    createdAt: Date;
+    tokenEstimate: number;
+}
+
+export type KeyFactType = 'paper_conclusion' | 'user_preference' | 'research_direction' | 'decision' | 'entity';
+
+export interface KeyFact {
+    type: KeyFactType;
+    content: string;
+    relatedPaperIndices: number[];
+    extractedAt: Date;
+}
+
+export interface MemoryState {
+    summaries: ConversationSummary[];
+    keyFacts: KeyFact[];
+    recentBufferStart: number;
+}
+
 // Agent context state
 export interface AgentContext {
     sessionId: string;
@@ -47,6 +72,7 @@ export interface AgentContext {
         searchCount: number;
         analysisCount: number;
     };
+    memoryState: MemoryState;
 }
 // Tool execution result
 export interface ToolResult {
@@ -88,4 +114,22 @@ export interface PaperSummary {
     year?: number;
     abstract?: string;
     doi?: string;
+}
+
+// --- Extraction Types ---
+
+export interface PaperSection {
+    title: string;
+    content: string;
+    order: number;
+    type: 'abstract' | 'introduction' | 'methods' | 'results' | 'discussion' | 'conclusion' | 'references' | 'other';
+}
+
+export interface ExtractionResult {
+    paperId: number;
+    fullText: string;
+    sections: PaperSection[];
+    extractedAt: Date;
+    source: 'arxiv' | 'pdf' | 'html' | 'other';
+    metadata: Record<string, any>;
 }

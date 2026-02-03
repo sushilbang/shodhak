@@ -1,5 +1,4 @@
 import OpenAI from 'openai';
-import axios from 'axios';
 import { pool } from '../config/database'
 import { logger } from '../utils/logger';
 import { Paper, PaperEmbedding } from '../models/database.models'
@@ -9,84 +8,40 @@ This service bridges the gap between raw text and semantic search. When a user s
 their query becomes a vector that's compared against all paper embeddings to find
 conceptually similar research - even if they use different words than what appears in the papers.
 
-Supports two embedding providers:
-- OpenAI: text-embedding-3-small (1536 dimensions)
-- Ollama: nomic-embed-text or other local models (configurable dimensions)
+Uses OpenAI text-embedding-3-small (1536 dimensions).
 */
 
-type EmbeddingProvider = 'openai' | 'ollama';
-
 class EmbeddingService {
-    private openaiClient?: OpenAI;
-    private provider: EmbeddingProvider;
-    private ollamaUrl: string;
-    private ollamaModel: string;
-    private dimensions: number = 768;
+    private openaiClient: OpenAI;
+    private readonly dimensions: number = 1536;
 
     constructor() {
-        // Determine provider from env
-        this.provider = (process.env.EMBEDDING_PROVIDER || 'openai') as EmbeddingProvider;
-        this.ollamaUrl = process.env.OLLAMA_URL?.replace('/v1', '') || 'http://localhost:11434';
-        this.ollamaModel = process.env.OLLAMA_EMBEDDING_MODEL || 'nomic-embed-text';
-
-        if (this.provider === 'openai') {
-            if (!process.env.OPENAI_API_KEY) {
-                logger.warn('No OPENAI_API_KEY found, falling back to Ollama for embeddings');
-                this.provider = 'ollama';
-            } else {
-                this.openaiClient = new OpenAI({
-                    apiKey: process.env.OPENAI_API_KEY,
-                });
-                this.dimensions = 1536;
-                logger.info('Embedding service using OpenAI');
-            }
+        if (!process.env.OPENAI_API_KEY) {
+            throw new Error('OPENAI_API_KEY is required for embedding service. Set it in your .env file.');
         }
 
-        if (this.provider === 'ollama') {
-            // nomic-embed-text produces 768 dimensions, adjust based on model
-            this.dimensions = parseInt(process.env.OLLAMA_EMBEDDING_DIMENSIONS || '768', 10);
-            logger.info('Embedding service using Ollama', {
-                model: this.ollamaModel,
-                dimensions: this.dimensions
-            });
-        }
+        this.openaiClient = new OpenAI({
+            apiKey: process.env.OPENAI_API_KEY,
+        });
+
+        logger.info('Embedding service initialized with OpenAI text-embedding-3-small');
     }
 
-    // create vector embedding used for both paper abstracts and search queries
     async generateEmbedding(text: string): Promise<number[]> {
-        if (this.provider === 'openai') {
-            return this.generateOpenAIEmbedding(text);
-        } else {
-            return this.generateOllamaEmbedding(text);
-        }
-    }
-
-    private async generateOpenAIEmbedding(text: string): Promise<number[]> {
-        const response = await this.openaiClient!.embeddings.create({
+        const response = await this.openaiClient.embeddings.create({
             model: 'text-embedding-3-small',
-            input: text.slice(0, 8000), // truncating to avoid token limits
+            input: text.slice(0, 8000),
         });
 
         return response.data[0].embedding;
     }
 
-    private async generateOllamaEmbedding(text: string): Promise<number[]> {
-        const response = await axios.post(`${this.ollamaUrl}/api/embeddings`, {
-            model: this.ollamaModel,
-            prompt: text.slice(0, 8000),
-        });
-
-        return response.data.embedding;
-    }
-
-    // embed a paper and store in database
     async embedPaper(paper: Paper): Promise<PaperEmbedding | null> {
         if (!paper.id) {
             logger.error('Paper must have an ID to embed');
             return null;
         }
 
-        // check if embedding already exists
         const existing = await pool.query(
             'SELECT * FROM paper_embeddings WHERE paper_id = $1',
             [paper.id]
@@ -101,7 +56,6 @@ class EmbeddingService {
             };
         }
 
-        // generate embedding from title + abstract
         const textToEmbed = `${paper.title}\n\n${paper.abstract}`;
         const embedding = await this.generateEmbedding(textToEmbed);
 
@@ -115,7 +69,7 @@ class EmbeddingService {
         logger.info('Generated embedding for paper', {
             paperId: paper.id,
             title: paper.title,
-            provider: this.provider,
+            dimensions: this.dimensions,
         });
 
         return {
@@ -126,7 +80,6 @@ class EmbeddingService {
         };
     }
 
-    // batch embed multiple papers
     async embedPapers(papers: Paper[]): Promise<PaperEmbedding[]> {
         const embeddings: PaperEmbedding[] = [];
 
@@ -148,14 +101,11 @@ class EmbeddingService {
         return embeddings;
     }
 
-    // find semantically similar papers
     async searchSimilarPapers(
         query: string,
         limit: number = 10
     ): Promise<{ paper: Paper; score: number }[]> {
         const queryEmbedding = await this.generateEmbedding(query);
-        // use cosine similarity to find similar papers
-        // PostgreSQL doesn't have native vector ops, so we compute in JS
         const result = await pool.query(`
           SELECT p.*, pe.embedding
           FROM papers p
@@ -188,7 +138,6 @@ class EmbeddingService {
                 score,
             };
         });
-        // sort by similarity score descending and return top results
         return scored.sort((a, b) => b.score - a.score).slice(0, limit);
     }
 
@@ -211,11 +160,61 @@ class EmbeddingService {
         return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
     }
 
-    // Get current provider info
+    async migrateEmbeddings(): Promise<void> {
+        const result = await pool.query('SELECT COUNT(*) as count FROM paper_embeddings');
+        const count = parseInt(result.rows[0].count, 10);
+
+        if (count === 0) {
+            logger.info('No embeddings to migrate');
+            return;
+        }
+
+        // Check if any embedding has wrong dimensions
+        const sample = await pool.query('SELECT embedding FROM paper_embeddings LIMIT 1');
+        if (sample.rows.length > 0) {
+            const embedding = typeof sample.rows[0].embedding === 'string'
+                ? JSON.parse(sample.rows[0].embedding)
+                : sample.rows[0].embedding;
+
+            if (Array.isArray(embedding) && embedding.length !== this.dimensions) {
+                logger.info('Embedding dimension mismatch detected, re-embedding all papers', {
+                    currentDimensions: embedding.length,
+                    targetDimensions: this.dimensions,
+                });
+
+                await pool.query('TRUNCATE paper_embeddings');
+
+                const papers = await pool.query('SELECT * FROM papers');
+                for (const row of papers.rows) {
+                    const paper: Paper = {
+                        id: row.id,
+                        external_id: row.external_id,
+                        title: row.title,
+                        authors: row.authors,
+                        abstract: row.abstract,
+                        url: row.url,
+                        doi: row.doi,
+                        year: row.year,
+                        venue: row.venue,
+                        citation_count: row.citation_count,
+                        source: row.source,
+                        metadata: row.metadata,
+                        created_at: row.created_at,
+                    };
+                    await this.embedPaper(paper);
+                }
+
+                logger.info('Embedding migration complete', { papersReEmbedded: papers.rows.length });
+            } else {
+                logger.info('Embeddings already at correct dimensions');
+            }
+        }
+    }
+
     getProviderInfo(): { provider: string; model: string; dimensions: number } {
         return {
-            provider: this.provider,
-            model: this.provider === 'openai' ? 'text-embedding-3-small' : this.ollamaModel,
+            provider: 'openai',
+            model: 'text-embedding-3-small',
             dimensions: this.dimensions,
         };
     }

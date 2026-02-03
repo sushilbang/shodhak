@@ -10,6 +10,12 @@ import { queryExpansionService } from './query-expansion.service';
 import { rerankingService, RankedPaper } from './reranking.service';
 import { Paper } from '../models/database.models';
 import { logger } from '../utils/logger';
+import {
+    OpenAlexProvider,
+    SemanticScholarProvider,
+    normalizeToInternalPaper,
+} from '../providers';
+import { getLimiter } from '../utils/concurrency-limiter';
 
 interface EnhancedSearchOptions {
     limit?: number;
@@ -17,6 +23,7 @@ interface EnhancedSearchOptions {
     useReranking?: boolean;
     parallelQueries?: number;
     deduplicateByDoi?: boolean;
+    multiProvider?: boolean;
 }
 
 interface EnhancedSearchResult {
@@ -38,10 +45,19 @@ const DEFAULT_OPTIONS: EnhancedSearchOptions = {
     useExpansion: true,
     useReranking: true,
     parallelQueries: 3,
-    deduplicateByDoi: true
+    deduplicateByDoi: true,
+    multiProvider: true,
 };
 
 class EnhancedSearchService {
+    private openalexProvider: OpenAlexProvider;
+    private semanticScholarProvider: SemanticScholarProvider;
+
+    constructor() {
+        this.openalexProvider = new OpenAlexProvider();
+        this.semanticScholarProvider = new SemanticScholarProvider();
+    }
+
     /**
      * Search with query expansion and re-ranking
      */
@@ -79,17 +95,35 @@ class EnhancedSearchService {
                 queryVariants = [query];
             }
 
-            // Step 2: Parallel Search with Variants
-            const searchPromises = queryVariants.map(variant =>
-                searchService.searchPapers(variant, opts.limit!)
-                    .catch(err => {
-                        logger.warn('Variant search failed', { variant, error: err.message });
-                        return [] as Paper[];
-                    })
-            );
+            // Step 2: Parallel Search with Variants across multiple providers
+            if (opts.multiProvider) {
+                const searchPromises: Promise<Paper[]>[] = [];
 
-            const searchResults = await Promise.all(searchPromises);
-            allPapers = searchResults.flat();
+                for (const variant of queryVariants) {
+                    // OpenAlex
+                    searchPromises.push(
+                        this.searchProvider(this.openalexProvider, variant, opts.limit!)
+                    );
+                    // Semantic Scholar
+                    searchPromises.push(
+                        this.searchProvider(this.semanticScholarProvider, variant, opts.limit!)
+                    );
+                }
+
+                const searchResults = await Promise.all(searchPromises);
+                allPapers = searchResults.flat();
+            } else {
+                const searchPromises = queryVariants.map(variant =>
+                    searchService.searchPapers(variant, opts.limit!)
+                        .catch(err => {
+                            logger.warn('Variant search failed', { variant, error: err.message });
+                            return [] as Paper[];
+                        })
+                );
+
+                const searchResults = await Promise.all(searchPromises);
+                allPapers = searchResults.flat();
+            }
 
             // Step 3: Deduplication
             const beforeDedup = allPapers.length;
@@ -155,6 +189,53 @@ class EnhancedSearchService {
                     latencyMs: Date.now() - startTime
                 }
             };
+        }
+    }
+
+    /**
+     * Search a single provider, normalize results, and save to DB
+     */
+    private async searchProvider(
+        provider: OpenAlexProvider | SemanticScholarProvider,
+        query: string,
+        limit: number
+    ): Promise<Paper[]> {
+        try {
+            // Semantic Scholar is strict about query format — clean it up
+            let cleanQuery = query;
+            if (provider.name === 'semantic_scholar') {
+                cleanQuery = query
+                    .replace(/[^\w\s-]/g, ' ')  // strip special chars
+                    .replace(/\s+/g, ' ')
+                    .trim()
+                    .slice(0, 200);  // S2 has query length limits
+            }
+
+            const limiter = getLimiter(provider.name, provider.concurrencyConfig);
+            const rawResults = await limiter.execute(() => provider.search(cleanQuery, limit));
+
+            const papers: Paper[] = [];
+            for (const raw of rawResults) {
+                const paper = normalizeToInternalPaper(raw);
+                const id = await searchService.savePaperIfNotExists(paper);
+                paper.id = id;
+                papers.push(paper);
+            }
+
+            logger.debug('Provider search completed', {
+                provider: provider.name,
+                query,
+                results: papers.length,
+            });
+
+            return papers;
+        } catch (err: any) {
+            logger.warn('Provider search failed', {
+                provider: provider.name,
+                query,
+                error: err.message,
+            });
+            return [];
         }
     }
 

@@ -36,9 +36,9 @@ async function runFullBenchmark(): Promise<FullBenchmarkReport> {
 
     // Get system info
     const system = {
-        llmProvider: process.env.LLM_PROVIDER || 'ollama',
+        llmProvider: process.env.LLM_PROVIDER || 'groq',
         searchProvider: process.env.PRIMARY_PAPER_PROVIDER || 'openalex',
-        embeddingProvider: process.env.EMBEDDING_PROVIDER || 'ollama'
+        embeddingProvider: 'openai'
     };
 
     console.log('System Configuration:');

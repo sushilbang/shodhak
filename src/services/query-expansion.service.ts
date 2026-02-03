@@ -7,7 +7,7 @@
 
 import OpenAI from 'openai';
 import { logger } from '../utils/logger';
-import { createLLMClient, LLMProvider } from '../benchmark/utils/llm-client.factory';
+import { createFastClient, LLMProvider } from '../benchmark/utils/llm-client.factory';
 
 interface ExpandedQuery {
     original: string;
@@ -25,11 +25,11 @@ class QueryExpansionService {
     private cache: Map<string, ExpandedQuery> = new Map();
 
     constructor() {
-        const { client, model, provider } = createLLMClient();
+        const { client, model, provider } = createFastClient();
         this.client = client;
         this.MODEL = model;
         this.provider = provider;
-        logger.info('Query expansion service initialized', { provider });
+        logger.info('Query expansion service initialized', { provider, model });
     }
 
     /**
@@ -53,13 +53,19 @@ class QueryExpansionService {
                 messages: [
                     {
                         role: 'system',
-                        content: `You are an academic search query expander. Given a research query, output related terms to improve search recall.
+                        content: `You are an academic search query expander. Given a research query, extract the core research topic (removing temporal phrases like "recent", "last 3 years", "published after 2020", etc.) and output related terms.
 
-Output JSON only:
+IMPORTANT: Respond with ONLY valid JSON, no markdown, no code blocks, no explanation.
+
 {
-  "terms": ["term1", "term2", ...],  // 5-8 key academic terms/phrases
-  "variants": ["var1", "var2", ...]   // 3-5 alternative phrasings or acronyms
-}`
+  "core_query": "cleaned query with only research terms",
+  "terms": ["term1", "term2", "term3", "term4", "term5"],
+  "variants": ["alternative phrasing 1", "alternative phrasing 2", "alternative phrasing 3"]
+}
+
+- "core_query": the research topic stripped of time/filter language
+- "terms": 5-8 key academic terms, synonyms, or related concepts
+- "variants": 3-5 alternative search phrasings using different terminology`
                     },
                     {
                         role: 'user',
@@ -70,11 +76,19 @@ Output JSON only:
 
             const content = response.choices[0]?.message?.content || '{}';
 
-            // Parse JSON from response
-            let parsed: { terms?: string[]; variants?: string[] } = {};
+            // Parse JSON from response (handle markdown code blocks, thinking tags, etc.)
+            let parsed: { core_query?: string; terms?: string[]; variants?: string[] } = {};
             try {
-                // Extract JSON from response (handle markdown code blocks)
-                const jsonMatch = content.match(/\{[\s\S]*\}/);
+                let jsonStr = content;
+                // Strip markdown code blocks
+                const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
+                if (codeBlockMatch) {
+                    jsonStr = codeBlockMatch[1].trim();
+                }
+                // Strip thinking tags (qwen models)
+                jsonStr = jsonStr.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+                // Extract JSON object
+                const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
                 if (jsonMatch) {
                     parsed = JSON.parse(jsonMatch[0]);
                 }
@@ -82,21 +96,21 @@ Output JSON only:
                 logger.warn('Failed to parse query expansion response', { content });
             }
 
-            const terms = parsed.terms || [];
-            const variants = parsed.variants || [];
+            const coreQuery = parsed.core_query || query;
+            const terms = Array.isArray(parsed.terms) ? parsed.terms : [];
+            const variants = Array.isArray(parsed.variants) ? parsed.variants : [];
 
-            // Build expanded query
+            // Build expanded query from core terms
             const allTerms = [...new Set([
-                ...query.split(/\s+/),
+                ...coreQuery.split(/\s+/),
                 ...terms,
-                ...variants
             ])].filter(t => t.length > 2);
 
             const expanded: ExpandedQuery = {
                 original: query,
-                expanded: allTerms.slice(0, 15).join(' '), // Limit to 15 terms
+                expanded: allTerms.slice(0, 15).join(' '),
                 terms,
-                variants
+                variants: variants.length > 0 ? variants : [coreQuery],
             };
 
             // Cache the result
@@ -129,7 +143,9 @@ Output JSON only:
     async generateQueryVariants(query: string, count: number = 3): Promise<string[]> {
         const expanded = await this.expandQuery(query);
 
-        const variants: string[] = [query]; // Always include original
+        // Use the cleaned expanded query as base, not the raw user query
+        const baseQuery = expanded.expanded || query;
+        const variants: string[] = [baseQuery];
 
         // Add variant phrasings
         for (const variant of expanded.variants.slice(0, count - 1)) {

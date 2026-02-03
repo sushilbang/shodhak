@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { agentService } from '../services/agent.service';
+import { sessionPersistence } from '../services/session-persistence.service';
 import { logger } from '../utils/logger';
 
 interface AuthenticatedRequest extends Request {
@@ -56,13 +57,34 @@ class AgentController {
         }
     }
 
+    // GET /api/agent/sessions - List active sessions for user
+    async listSessions(req: AuthenticatedRequest, res: Response): Promise<void> {
+        try {
+            const userId = req.user!.id;
+            const sessions = await sessionPersistence.getUserActiveSessions(userId);
+
+            res.json({
+                sessions: sessions.map(s => ({
+                    session_id: s.id,
+                    status: s.status,
+                    created_at: s.created_at,
+                    last_activity_at: s.last_activity_at,
+                    metadata: s.metadata,
+                }))
+            });
+        } catch (error) {
+            logger.error('List sessions failed', { error });
+            res.status(500).json({ error: 'Failed to retrieve sessions' });
+        }
+    }
+
     // GET /api/agent/sessions/:id - Get session info
     async getSession(req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
             const userId = req.user!.id;
             const sessionId = req.params.id;
 
-            const context = agentService.getSession(sessionId, userId);
+            const context = await agentService.getSession(sessionId, userId);
 
             if (!context) {
                 res.status(404).json({ error: 'Session not found or expired' });
@@ -93,7 +115,7 @@ class AgentController {
         try {
             const sessionId = req.params.id;
 
-            const deleted = agentService.endSession(sessionId);
+            const deleted = await agentService.endSession(sessionId);
 
             if (!deleted) {
                 res.status(404).json({ error: 'Session not found' });
