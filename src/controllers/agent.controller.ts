@@ -38,7 +38,8 @@ class AgentController {
                     authors: p.authors.map(a => a.name).join(', '),
                     year: p.year,
                     abstract: p.abstract?.slice(0, 300),
-                    doi: p.doi
+                    doi: p.doi,
+                    source: p.source
                 })),
                 metadata: {
                     tools_used: response.toolsUsed,
@@ -98,7 +99,10 @@ class AgentController {
                     index: idx,
                     title: p.title,
                     authors: p.authors.map(a => a.name).join(', '),
-                    year: p.year
+                    year: p.year,
+                    abstract: p.abstract?.slice(0, 300),
+                    doi: p.doi,
+                    source: p.source
                 })),
                 metadata: context.metadata,
                 message_count: context.conversationHistory.length

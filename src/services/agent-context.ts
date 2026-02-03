@@ -222,13 +222,17 @@ export class AgentContextManager {
         return cleanedCount;
     }
 
-    async persistMetadata(context: AgentContext): Promise<void> {
+    async persistMetadata(context: AgentContext, lastQuery?: string): Promise<void> {
         try {
-            await sessionPersistence.updateSessionMetadata(context.sessionId, {
+            const meta: Record<string, any> = {
                 totalIterations: context.metadata.totalIterations,
                 searchCount: context.metadata.searchCount,
                 analysisCount: context.metadata.analysisCount,
-            });
+            };
+            if (lastQuery) {
+                meta.lastQuery = lastQuery;
+            }
+            await sessionPersistence.updateSessionMetadata(context.sessionId, meta);
         } catch (err) {
             logger.error('Failed to persist session metadata', { sessionId: context.sessionId, error: err });
         }

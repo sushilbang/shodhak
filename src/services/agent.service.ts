@@ -74,8 +74,8 @@ export class AgentService {
         // Run the agent loop
         const response = await this.runAgentLoop(context, messages);
 
-        // Persist metadata after loop completes
-        await contextManager.persistMetadata(context);
+        // Persist metadata after loop completes (include lastQuery for sidebar labels)
+        await contextManager.persistMetadata(context, message);
 
         return {
             ...response,

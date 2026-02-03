@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        /* ===== CSS Variables (Light Theme) ===== */
         :root {
             --bg-color: #fafafa;
             --chat-bg: #ffffff;
@@ -19,13 +20,53 @@
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --code-bg: #f3f4f6;
+            --pre-bg: #1f2937;
+            --pre-color: #e5e7eb;
+            --tool-badge-bg: #f3f4f6;
+            --tool-badge-border: #e5e7eb;
+            --sidebar-bg: #ffffff;
+            --highlight-bg: rgba(59, 130, 246, 0.08);
+            --paper-hover-bg: #ffffff;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        /* ===== Dark Theme ===== */
+        [data-theme="dark"] {
+            --bg-color: #111827;
+            --chat-bg: #1f2937;
+            --accent-color: #60a5fa;
+            --accent-hover: #3b82f6;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --border-color: #374151;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+            --code-bg: #374151;
+            --pre-bg: #0d1117;
+            --pre-color: #e6edf3;
+            --tool-badge-bg: #374151;
+            --tool-badge-border: #4b5563;
+            --sidebar-bg: #1f2937;
+            --highlight-bg: rgba(96, 165, 250, 0.1);
+            --paper-hover-bg: #283548;
         }
+
+        [data-theme="dark"] .message-content strong { color: #f9fafb; }
+        [data-theme="dark"] .message-content code { background: var(--code-bg); color: #e5e7eb; }
+        [data-theme="dark"] .message-content pre { background: var(--pre-bg); color: var(--pre-color); }
+        [data-theme="dark"] .message-content blockquote { border-color: #4b5563; color: var(--text-secondary); }
+        [data-theme="dark"] .message-content a { color: var(--accent-color); }
+        [data-theme="dark"] .header-actions button:hover { background: #374151; }
+        [data-theme="dark"] .quick-action-btn:hover { border-color: var(--accent-color); }
+        [data-theme="dark"] .paper-card:hover { background: var(--paper-hover-bg); }
+        [data-theme="dark"] .avatar { background: #1e3a5f; color: var(--accent-color); }
+        [data-theme="dark"] .message.user .message-content { background: #283548; border-color: #374151; }
+        [data-theme="dark"] .toggle-panel-btn { background: var(--chat-bg); }
+        [data-theme="dark"] .retry-btn { background: #374151; color: var(--accent-color); border-color: #4b5563; }
+        [data-theme="dark"] .session-item:hover { background: #283548; }
+
+        /* ===== Reset ===== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: var(--font-family);
@@ -37,7 +78,7 @@
             overflow: hidden;
         }
 
-        /* --- Header --- */
+        /* ===== Header ===== */
         header {
             background: var(--chat-bg);
             border-bottom: 1px solid var(--border-color);
@@ -47,6 +88,13 @@
             align-items: center;
             height: 60px;
             flex-shrink: 0;
+            z-index: 30;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
         .logo {
@@ -58,8 +106,12 @@
             gap: 0.5rem;
         }
 
-        .logo svg {
-            color: var(--accent-color);
+        .logo svg { color: var(--accent-color); }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .header-actions button {
@@ -78,7 +130,16 @@
             color: var(--text-primary);
         }
 
-        /* --- Main Layout --- */
+        .icon-btn {
+            padding: 0.4rem !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+        }
+
+        /* ===== Main Layout ===== */
         .app-layout {
             display: flex;
             flex: 1;
@@ -86,13 +147,120 @@
             position: relative;
         }
 
-        /* --- Chat Area --- */
+        /* ===== Sessions Sidebar ===== */
+        .sessions-sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            z-index: 25;
+        }
+
+        .sessions-sidebar.collapsed {
+            margin-left: -280px;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .sidebar-header button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 4px;
+        }
+
+        .sessions-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .session-item {
+            padding: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s;
+            margin-bottom: 2px;
+            position: relative;
+        }
+
+        .session-item:hover {
+            background: var(--highlight-bg);
+        }
+
+        .session-item.active {
+            background: var(--highlight-bg);
+            border-left: 2px solid var(--accent-color);
+        }
+
+        .session-query {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .session-meta {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .session-end-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .session-item:hover .session-end-btn {
+            opacity: 1;
+        }
+
+        .sessions-empty {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-top: 2rem;
+            font-size: 0.85rem;
+        }
+
+        .sessions-loading {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-top: 2rem;
+            font-size: 0.85rem;
+        }
+
+        /* ===== Chat Area ===== */
         .chat-container {
             flex: 1;
             display: flex;
             flex-direction: column;
             position: relative;
             background: var(--bg-color);
+            min-width: 0;
         }
 
         .messages-area {
@@ -125,7 +293,7 @@
 
         .quick-actions {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 0.75rem;
             margin-top: 2rem;
             width: 100%;
@@ -142,6 +310,8 @@
             transition: all 0.2s;
             font-size: 0.9rem;
             box-shadow: var(--shadow-sm);
+            color: var(--text-primary);
+            font-family: var(--font-family);
         }
 
         .quick-action-btn:hover {
@@ -150,7 +320,7 @@
             transform: translateY(-1px);
         }
 
-        /* Messages */
+        /* ===== Messages ===== */
         .message {
             display: flex;
             gap: 1rem;
@@ -161,9 +331,12 @@
             animation: slideUp 0.3s forwards;
         }
 
-        .message.user {
-            justify-content: flex-end;
+        .message.restored {
+            animation: none;
+            opacity: 1;
         }
+
+        .message.user { justify-content: flex-end; }
 
         .avatar {
             width: 32px;
@@ -178,15 +351,15 @@
             font-size: 0.8rem;
         }
 
-        .message.user .avatar {
-            display: none;
-        }
+        .message.user .avatar { display: none; }
 
         .message-content {
             padding: 0 1rem;
             line-height: 1.6;
             font-size: 1rem;
             color: var(--text-primary);
+            max-width: 100%;
+            overflow-wrap: break-word;
         }
 
         .message.user .message-content {
@@ -197,11 +370,90 @@
             border: 1px solid var(--border-color);
         }
 
-        /* Tool Badges */
+        /* ===== Markdown Styles ===== */
+        .message-content strong { font-weight: 600; color: #111; }
+        .message-content em { font-style: italic; }
+        .message-content code {
+            background: var(--code-bg);
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            font-size: 0.88em;
+            font-family: 'Menlo', 'Consolas', monospace;
+        }
+        .message-content pre {
+            background: var(--pre-bg);
+            color: var(--pre-color);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 0.75rem 0;
+            line-height: 1.5;
+        }
+        .message-content pre code {
+            background: none;
+            padding: 0;
+            border-radius: 0;
+            font-size: 0.88em;
+            color: inherit;
+        }
+        .message-content h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 1rem 0 0.5rem;
+            color: var(--text-primary);
+        }
+        .message-content h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0.75rem 0 0.4rem;
+            color: var(--text-primary);
+        }
+        .message-content h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0.5rem 0 0.3rem;
+            color: var(--text-primary);
+        }
+        .message-content ul, .message-content ol {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+        .message-content li {
+            margin-bottom: 0.25rem;
+            line-height: 1.6;
+        }
+        .message-content blockquote {
+            border-left: 3px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            margin: 0.5rem 0;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        .message-content a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        .message-content a:hover { text-decoration: underline; }
+        .message-content hr {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 1rem 0;
+        }
+
+        .citation {
+            color: var(--accent-color);
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.8em;
+            vertical-align: super;
+        }
+        .citation:hover { text-decoration: underline; }
+
+        /* ===== Tool Badges ===== */
         .message-meta {
             margin-top: 0.75rem;
             padding-top: 0.5rem;
-            border-top: 1px solid #f0f0f0;
+            border-top: 1px solid var(--border-color);
             font-size: 0.8rem;
             color: var(--text-secondary);
         }
@@ -214,29 +466,41 @@
         }
 
         .tool-badge {
-            background: #f3f4f6;
+            background: var(--tool-badge-bg);
             padding: 0.2rem 0.5rem;
             border-radius: 4px;
             font-size: 0.75rem;
             color: var(--text-secondary);
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--tool-badge-border);
             display: flex;
             align-items: center;
             gap: 4px;
         }
 
-        .tool-badge svg {
-            width: 12px;
-            height: 12px;
+        .tool-badge svg { width: 12px; height: 12px; }
+
+        /* ===== Retry Button ===== */
+        .retry-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 0.5rem;
+            padding: 0.35rem 0.75rem;
+            background: var(--chat-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            font-family: var(--font-family);
+            transition: all 0.15s;
+        }
+        .retry-btn:hover {
+            background: var(--highlight-bg);
+            border-color: var(--accent-color);
         }
 
-        /* Markdown Styles */
-        .message-content strong { font-weight: 600; color: #111; }
-        .message-content code { background: #f3f4f6; padding: 0.1rem 0.3rem; border-radius: 4px; font-size: 0.9em; font-family: monospace; }
-        .message-content pre { background: #1f2937; color: #fff; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 0.5rem 0; }
-        .citation { color: var(--accent-color); font-weight: 500; cursor: pointer; font-size: 0.8em; vertical-align: super; }
-
-        /* --- Input Area --- */
+        /* ===== Input Area ===== */
         .input-wrapper {
             background: var(--bg-color);
             padding: 1.5rem;
@@ -260,7 +524,6 @@
 
         .input-box:focus-within {
             border-color: var(--accent-color);
-            ring: 2px solid rgba(59, 130, 246, 0.1);
         }
 
         textarea {
@@ -274,6 +537,7 @@
             font-size: 1rem;
             outline: none;
             background: transparent;
+            color: var(--text-primary);
         }
 
         .send-btn {
@@ -290,16 +554,11 @@
             transition: background 0.2s;
         }
 
-        .send-btn:disabled {
-            background: #e5e7eb;
-            cursor: not-allowed;
-        }
+        .send-btn:disabled { background: #e5e7eb; cursor: not-allowed; }
+        [data-theme="dark"] .send-btn:disabled { background: #374151; }
+        .send-btn:hover:not(:disabled) { background: var(--accent-hover); }
 
-        .send-btn:hover:not(:disabled) {
-            background: var(--accent-hover);
-        }
-
-        /* --- Status Indicator --- */
+        /* ===== Status Indicator ===== */
         .status-indicator {
             position: absolute;
             top: -40px;
@@ -320,33 +579,29 @@
             transition: opacity 0.3s;
         }
 
-        .status-indicator.active {
-            opacity: 1;
-        }
+        .status-indicator.active { opacity: 1; }
 
         .spinner {
             width: 14px;
             height: 14px;
-            border: 2px solid #e5e7eb;
+            border: 2px solid var(--border-color);
             border-top-color: var(--accent-color);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
 
-        /* --- Papers Panel --- */
+        /* ===== Papers Panel ===== */
         .papers-panel {
-            width: 300px;
+            width: 340px;
             background: var(--chat-bg);
             border-left: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
         }
 
-        .papers-panel.collapsed {
-            width: 0;
-            border: none;
-        }
+        .papers-panel.collapsed { width: 0; border: none; overflow: hidden; }
 
         .panel-header {
             padding: 1rem;
@@ -358,33 +613,125 @@
             font-size: 0.9rem;
         }
 
+        .panel-header button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
         .papers-list {
             flex: 1;
             overflow-y: auto;
-            padding: 1rem;
+            padding: 0.75rem;
         }
 
+        /* ===== Paper Cards ===== */
         .paper-card {
             background: var(--bg-color);
             border: 1px solid transparent;
-            border-radius: 6px;
+            border-radius: 8px;
             padding: 0.75rem;
             margin-bottom: 0.75rem;
             font-size: 0.85rem;
-            cursor: pointer;
             transition: all 0.2s;
         }
 
         .paper-card:hover {
-            background: white;
+            background: var(--paper-hover-bg);
             border-color: var(--border-color);
             box-shadow: var(--shadow-sm);
+        }
+
+        .paper-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 4px;
         }
 
         .paper-index {
             color: var(--accent-color);
             font-weight: 600;
             margin-right: 4px;
+            flex-shrink: 0;
+        }
+
+        .paper-year {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .paper-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .paper-authors {
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            margin-bottom: 4px;
+        }
+
+        .paper-abstract {
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .paper-footer {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .paper-source-badge {
+            font-size: 0.65rem;
+            padding: 1px 6px;
+            border-radius: 3px;
+            background: var(--highlight-bg);
+            color: var(--accent-color);
+            font-weight: 500;
+            text-transform: lowercase;
+        }
+
+        .paper-doi-link {
+            font-size: 0.72rem;
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        .paper-doi-link:hover { text-decoration: underline; }
+
+        .paper-cite-btn {
+            margin-left: auto;
+            font-size: 0.72rem;
+            padding: 2px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: var(--font-family);
+            transition: all 0.15s;
+        }
+        .paper-cite-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .paper-highlight {
+            border-color: var(--accent-color) !important;
+            background: var(--highlight-bg) !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            transition: all 0.3s;
         }
 
         .paper-meta {
@@ -399,20 +746,31 @@
             right: 20px;
             top: 20px;
             z-index: 10;
-            background: white;
+            background: var(--chat-bg);
             border: 1px solid var(--border-color);
             padding: 0.4rem;
             border-radius: 6px;
             cursor: pointer;
-            display: none; /* Shown via JS logic or media query */
+            display: none;
         }
 
-        /* Animations */
+        /* ===== Animations ===== */
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Mobile */
+        /* ===== System Message ===== */
+        .system-message {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            padding: 0.25rem 0;
+            opacity: 0;
+            animation: slideUp 0.3s forwards;
+        }
+        .system-message.restored { animation: none; opacity: 1; }
+
+        /* ===== Mobile ===== */
         @media (max-width: 768px) {
             .papers-panel {
                 position: absolute;
@@ -425,11 +783,26 @@
             }
             .papers-panel.collapsed {
                 transform: translateX(100%);
-                width: 85%; /* Keep width for animation */
+                width: 85%;
             }
-            .header-actions {
-                display: none;
+            .sessions-sidebar {
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 25;
+                width: 280px;
+                box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+                margin-left: 0;
             }
+            .sessions-sidebar.collapsed {
+                transform: translateX(-100%);
+                margin-left: 0;
+            }
+            .messages-area { padding: 1rem; }
+            .input-wrapper { padding: 0.75rem; }
+            .message-content { font-size: 0.95rem; }
+            #new-chat-btn { display: none !important; }
         }
 
         .hidden { display: none !important; }
@@ -439,22 +812,62 @@
 
     <!-- Header -->
     <header>
-        <div class="logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-            </svg>
-            Shodhak
+        <div class="header-left">
+            <button id="sessions-toggle-btn" class="icon-btn" title="Session history" style="background:transparent; border:1px solid var(--border-color); border-radius:6px; cursor:pointer; color:var(--text-secondary); transition:all 0.2s;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </button>
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                Shodhak
+            </div>
         </div>
         <div class="header-actions">
             <button id="toggle-papers-btn">
                 Papers (<span id="papers-count">0</span>)
             </button>
             <button id="new-chat-btn">New Chat</button>
+            <button id="theme-toggle-btn" class="icon-btn" title="Toggle theme">
+                <svg id="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
         </div>
     </header>
 
     <div class="app-layout">
+
+        <!-- Sessions Sidebar -->
+        <div id="sessions-sidebar" class="sessions-sidebar collapsed">
+            <div class="sidebar-header">
+                <span>Sessions</span>
+                <button id="close-sidebar-btn" title="Close sidebar">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div id="sessions-list" class="sessions-list">
+                <div class="sessions-empty">No sessions yet.</div>
+            </div>
+        </div>
 
         <!-- Main Chat -->
         <div class="chat-container">
@@ -463,27 +876,14 @@
                 <div id="welcome-screen" class="welcome-screen">
                     <h1>What shall we research today?</h1>
                     <p>I can find papers, summarize research, and answer complex questions.</p>
-
-                    <div class="quick-actions">
-                        <div class="quick-action-btn" data-query="Find recent papers on transformer architectures">
-                            <strong>Find papers</strong><br>
-                            <span style="color:var(--text-secondary); font-size:0.8rem">on transformer architectures</span>
-                        </div>
-                        <div class="quick-action-btn" data-query="Summarize the key challenges in Large Language Models">
-                            <strong>Summarize</strong><br>
-                            <span style="color:var(--text-secondary); font-size:0.8rem">challenges in LLMs</span>
-                        </div>
-                        <div class="quick-action-btn" data-query="Compare RAG vs Fine-tuning for medical QA">
-                            <strong>Compare</strong><br>
-                            <span style="color:var(--text-secondary); font-size:0.8rem">RAG vs Fine-tuning</span>
-                        </div>
+                    <div id="quick-actions" class="quick-actions">
+                        <!-- Rendered dynamically -->
                     </div>
                 </div>
             </div>
 
             <!-- Input Area -->
             <div class="input-wrapper">
-                <!-- Dynamic Status Indicator -->
                 <div id="status-indicator" class="status-indicator">
                     <div class="spinner"></div>
                     <span id="status-text">Thinking...</span>
@@ -505,7 +905,7 @@
         <div id="papers-panel" class="papers-panel collapsed">
             <div class="panel-header">
                 <span>Papers in Context</span>
-                <button id="close-panel-btn" style="background:none; border:none; cursor:pointer;">
+                <button id="close-panel-btn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -513,7 +913,6 @@
                 </button>
             </div>
             <div id="papers-list" class="papers-list">
-                <!-- Papers injected here -->
                 <div style="text-align:center; color:var(--text-secondary); margin-top:2rem;">
                     No papers found yet.
                 </div>
@@ -522,19 +921,29 @@
     </div>
 
     <script>
-        // --- Configuration ---
-        // Use full URL when opened directly via file://, otherwise use relative path
+        // ====================================================================
+        // Configuration
+        // ====================================================================
         const API_BASE = window.location.protocol === 'file:'
             ? 'http://localhost:3000/api/agent'
             : '/api/agent';
         const USER_ID = '1';
 
-        // --- State ---
+        // localStorage keys
+        const LS_SESSION  = 'shodhak_session';
+        const LS_PAPERS   = 'shodhak_papers';
+        const LS_MESSAGES = 'shodhak_messages';
+        const LS_THEME    = 'shodhak_theme';
+
+        // ====================================================================
+        // State
+        // ====================================================================
         let sessionId = null;
         let papers = [];
         let isLoading = false;
+        let lastFailedMessage = null;
 
-        // --- Tool Status Mapping ---
+        // Tool status mapping
         const TOOL_STATUS_MAP = {
             'search_papers': 'Searching academic databases...',
             'lookup_paper_by_doi': 'Looking up DOI...',
@@ -547,10 +956,25 @@
             'get_current_papers': 'Checking context...'
         };
 
-        // --- DOM Elements ---
+        // Quick action templates (pick 3 randomly)
+        const QUICK_ACTION_TEMPLATES = [
+            { strong: 'Find papers', detail: 'on transformer architectures', query: 'Find recent papers on transformer architectures' },
+            { strong: 'Summarize', detail: 'challenges in LLMs', query: 'Summarize the key challenges in Large Language Models' },
+            { strong: 'Compare', detail: 'RAG vs Fine-tuning', query: 'Compare RAG vs Fine-tuning for medical QA' },
+            { strong: 'Explore', detail: 'attention mechanisms', query: 'Find papers on attention mechanisms in deep learning' },
+            { strong: 'Review', detail: 'graph neural networks', query: 'Generate a literature review on graph neural networks' },
+            { strong: 'Analyze', detail: 'prompt engineering', query: 'Find and summarize recent papers on prompt engineering techniques' },
+            { strong: 'Search', detail: 'multimodal learning', query: 'Search for papers on multimodal learning and vision-language models' },
+            { strong: 'Investigate', detail: 'AI alignment', query: 'Find recent papers on AI alignment and safety research' },
+        ];
+
+        // ====================================================================
+        // DOM Elements
+        // ====================================================================
         const els = {
             messages: document.getElementById('messages-container'),
             welcome: document.getElementById('welcome-screen'),
+            quickActions: document.getElementById('quick-actions'),
             input: document.getElementById('agent-input'),
             form: document.getElementById('agent-form'),
             sendBtn: document.getElementById('send-btn'),
@@ -561,11 +985,26 @@
             papersCount: document.getElementById('papers-count'),
             togglePapers: document.getElementById('toggle-papers-btn'),
             closePanel: document.getElementById('close-panel-btn'),
-            newChat: document.getElementById('new-chat-btn')
+            newChat: document.getElementById('new-chat-btn'),
+            themeToggle: document.getElementById('theme-toggle-btn'),
+            iconMoon: document.getElementById('theme-icon-moon'),
+            iconSun: document.getElementById('theme-icon-sun'),
+            sessionsSidebar: document.getElementById('sessions-sidebar'),
+            sessionsToggle: document.getElementById('sessions-toggle-btn'),
+            closeSidebar: document.getElementById('close-sidebar-btn'),
+            sessionsList: document.getElementById('sessions-list'),
         };
 
-        // --- Initialization ---
+        // ====================================================================
+        // Initialization
+        // ====================================================================
         document.addEventListener('DOMContentLoaded', () => {
+            // Apply saved theme
+            applyTheme(localStorage.getItem(LS_THEME) || 'light');
+
+            // Render quick actions
+            renderQuickActions();
+
             // Auto-resize textarea
             els.input.addEventListener('input', function() {
                 this.style.height = 'auto';
@@ -584,19 +1023,267 @@
             els.togglePapers.addEventListener('click', togglePanel);
             els.closePanel.addEventListener('click', togglePanel);
             els.newChat.addEventListener('click', startNewChat);
+            els.themeToggle.addEventListener('click', toggleTheme);
+            els.sessionsToggle.addEventListener('click', toggleSidebar);
+            els.closeSidebar.addEventListener('click', toggleSidebar);
 
-            // Quick Actions
-            document.querySelectorAll('.quick-action-btn').forEach(btn => {
+            // Restore session from localStorage
+            restoreSession();
+        });
+
+        // ====================================================================
+        // Theme
+        // ====================================================================
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem(LS_THEME, theme);
+            if (theme === 'dark') {
+                els.iconMoon.style.display = 'none';
+                els.iconSun.style.display = '';
+            } else {
+                els.iconMoon.style.display = '';
+                els.iconSun.style.display = 'none';
+            }
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        }
+
+        // ====================================================================
+        // Quick Actions
+        // ====================================================================
+        function renderQuickActions() {
+            const shuffled = [...QUICK_ACTION_TEMPLATES].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 3);
+            els.quickActions.innerHTML = selected.map(a => `
+                <div class="quick-action-btn" data-query="${escapeAttr(a.query)}">
+                    <strong>${escapeHtml(a.strong)}</strong><br>
+                    <span style="color:var(--text-secondary); font-size:0.8rem">${escapeHtml(a.detail)}</span>
+                </div>
+            `).join('');
+
+            els.quickActions.querySelectorAll('.quick-action-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     els.input.value = btn.dataset.query;
                     els.sendBtn.disabled = false;
                     handleSubmit(new Event('submit'));
                 });
             });
-        });
+        }
 
-        // --- Core Logic ---
+        // ====================================================================
+        // Session Persistence
+        // ====================================================================
+        function saveSession() {
+            if (sessionId) localStorage.setItem(LS_SESSION, sessionId);
+            if (papers.length > 0) localStorage.setItem(LS_PAPERS, JSON.stringify(papers));
+        }
 
+        function saveMessages() {
+            // Store last ~20 messages from the DOM
+            const msgEls = els.messages.querySelectorAll('.message, .system-message');
+            const stored = [];
+            let count = 0;
+            for (let i = msgEls.length - 1; i >= 0 && count < 20; i--) {
+                const el = msgEls[i];
+                if (el.classList.contains('system-message')) {
+                    stored.unshift({ type: 'system', text: el.textContent });
+                    count++;
+                } else if (el.classList.contains('user')) {
+                    const contentEl = el.querySelector('.message-content');
+                    if (contentEl) {
+                        stored.unshift({ type: 'user', text: contentEl.textContent });
+                        count++;
+                    }
+                } else {
+                    const contentEl = el.querySelector('.message-content');
+                    if (contentEl) {
+                        stored.unshift({ type: 'assistant', html: contentEl.innerHTML });
+                        count++;
+                    }
+                }
+            }
+            localStorage.setItem(LS_MESSAGES, JSON.stringify(stored));
+        }
+
+        function restoreSession() {
+            const storedSession = localStorage.getItem(LS_SESSION);
+            const storedPapers = localStorage.getItem(LS_PAPERS);
+            const storedMessages = localStorage.getItem(LS_MESSAGES);
+
+            if (!storedSession || !storedMessages) return;
+
+            try {
+                sessionId = storedSession;
+                if (storedPapers) {
+                    papers = JSON.parse(storedPapers);
+                    updatePapersList();
+                }
+
+                const messages = JSON.parse(storedMessages);
+                if (messages.length === 0) return;
+
+                els.welcome.classList.add('hidden');
+
+                // Re-render stored messages
+                messages.forEach(msg => {
+                    if (msg.type === 'system') {
+                        addSystemMessage(msg.text, true);
+                    } else if (msg.type === 'user') {
+                        addMessage(msg.text, 'user', {}, true);
+                    } else if (msg.type === 'assistant') {
+                        addMessageRaw(msg.html, 'assistant', true);
+                    }
+                });
+
+                addSystemMessage('Session restored', true);
+                scrollToBottom();
+            } catch (e) {
+                console.error('Failed to restore session', e);
+                clearStorage();
+            }
+        }
+
+        function clearStorage() {
+            localStorage.removeItem(LS_SESSION);
+            localStorage.removeItem(LS_PAPERS);
+            localStorage.removeItem(LS_MESSAGES);
+        }
+
+        // ====================================================================
+        // Sessions Sidebar
+        // ====================================================================
+        function toggleSidebar() {
+            const sidebar = els.sessionsSidebar;
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            sidebar.classList.toggle('collapsed');
+            if (isCollapsed) {
+                loadSessions();
+            }
+        }
+
+        async function loadSessions() {
+            els.sessionsList.innerHTML = '<div class="sessions-loading">Loading...</div>';
+            try {
+                const res = await fetch(`${API_BASE}/sessions`, {
+                    headers: { 'X-User-Id': USER_ID }
+                });
+                if (!res.ok) throw new Error('Failed to load sessions');
+                const data = await res.json();
+                renderSessions(data.sessions || []);
+            } catch (e) {
+                console.error('Load sessions error', e);
+                els.sessionsList.innerHTML = '<div class="sessions-empty">Failed to load sessions.</div>';
+            }
+        }
+
+        function renderSessions(sessions) {
+            if (sessions.length === 0) {
+                els.sessionsList.innerHTML = '<div class="sessions-empty">No sessions yet.</div>';
+                return;
+            }
+
+            els.sessionsList.innerHTML = sessions.map(s => {
+                const query = s.metadata?.lastQuery || 'Untitled session';
+                const preview = query.length > 40 ? query.slice(0, 40) + '...' : query;
+                const time = timeAgo(s.last_activity_at || s.created_at);
+                const isActive = s.session_id === sessionId;
+                return `
+                    <div class="session-item${isActive ? ' active' : ''}" data-sid="${escapeAttr(s.session_id)}">
+                        <div class="session-query">${escapeHtml(preview)}</div>
+                        <div class="session-meta">
+                            <span>${time} &middot; ${s.status || 'active'}</span>
+                            <button class="session-end-btn" data-end-sid="${escapeAttr(s.session_id)}" title="End session">End</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Click handlers
+            els.sessionsList.querySelectorAll('.session-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    if (e.target.closest('.session-end-btn')) return;
+                    switchSession(item.dataset.sid);
+                });
+            });
+
+            els.sessionsList.querySelectorAll('.session-end-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    endSessionById(btn.dataset.endSid);
+                });
+            });
+        }
+
+        async function switchSession(sid) {
+            try {
+                const res = await fetch(`${API_BASE}/sessions/${sid}`, {
+                    headers: { 'X-User-Id': USER_ID }
+                });
+                if (!res.ok) throw new Error('Session not found');
+                const data = await res.json();
+
+                // Update state
+                sessionId = data.session_id;
+                papers = data.papers || [];
+                clearStorage();
+                saveSession();
+
+                // Clear messages and show session info
+                const welcome = els.welcome;
+                els.messages.innerHTML = '';
+                els.messages.appendChild(welcome);
+                welcome.classList.add('hidden');
+
+                updatePapersList();
+                if (papers.length > 0 && els.papersPanel.classList.contains('collapsed')) {
+                    togglePanel();
+                }
+
+                addSystemMessage('Resumed session');
+
+                // Close sidebar
+                els.sessionsSidebar.classList.add('collapsed');
+            } catch (e) {
+                console.error('Switch session error', e);
+            }
+        }
+
+        async function endSessionById(sid) {
+            try {
+                await fetch(`${API_BASE}/sessions/${sid}`, {
+                    method: 'DELETE',
+                    headers: { 'X-User-Id': USER_ID }
+                });
+                if (sid === sessionId) {
+                    startNewChat();
+                }
+                loadSessions();
+            } catch (e) {
+                console.error('End session error', e);
+            }
+        }
+
+        function timeAgo(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            if (seconds < 60) return 'just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            if (days < 7) return `${days}d ago`;
+            return date.toLocaleDateString();
+        }
+
+        // ====================================================================
+        // Core Chat Logic
+        // ====================================================================
         async function handleSubmit(e) {
             e.preventDefault();
             const message = els.input.value.trim();
@@ -607,22 +1294,24 @@
             addMessage(message, 'user');
             els.input.value = '';
             els.input.style.height = '24px';
+            els.sendBtn.disabled = true;
             setLoading(true);
 
-            // Determine initial status based on keywords (since API isn't streaming)
-            let initialStatus = "Thinking...";
+            await sendMessage(message);
+        }
+
+        async function sendMessage(message) {
+            // Determine initial status
+            let initialStatus = 'Thinking...';
             const lowerMsg = message.toLowerCase();
             if (lowerMsg.includes('find') || lowerMsg.includes('search')) initialStatus = TOOL_STATUS_MAP['search_papers'];
             else if (lowerMsg.includes('summarize')) initialStatus = TOOL_STATUS_MAP['summarize_paper'];
             else if (lowerMsg.includes('compare')) initialStatus = TOOL_STATUS_MAP['compare_papers'];
-
             updateStatus(initialStatus);
 
             try {
-                // Simulate status progression for UX
                 const statusTimer = setInterval(() => {
                     if (!isLoading) { clearInterval(statusTimer); return; }
-                    // Cycle status if request takes long
                     const current = els.statusText.textContent;
                     if (current.includes('Searching')) updateStatus('Analyzing results...');
                     else if (current.includes('Analyzing')) updateStatus('Formulating answer...');
@@ -639,34 +1328,169 @@
 
                 if (!response.ok) throw new Error(data.error || 'Network response was not ok');
 
-                // Update State
+                // Update state
                 sessionId = data.session_id;
+                lastFailedMessage = null;
 
-                // Handle Papers
+                // Handle papers
                 if (data.papers && data.papers.length > 0) {
-                    papers = data.papers; // Replace or merge depending on logic. Assuming replace context.
+                    papers = data.papers;
                     updatePapersList();
-                    // Auto-open panel if new papers found
                     if (els.papersPanel.classList.contains('collapsed')) togglePanel();
                 }
 
                 addMessage(data.response, 'assistant', data.metadata);
 
+                // Persist to localStorage
+                saveSession();
+                saveMessages();
+
             } catch (error) {
                 console.error(error);
-                addMessage(`I encountered an error: ${error.message}`, 'assistant', { error: true });
+                lastFailedMessage = message;
+                addErrorMessage(`I encountered an error: ${error.message}`);
             } finally {
                 setLoading(false);
             }
         }
 
-        // --- UI Functions ---
+        function retryLastMessage() {
+            if (!lastFailedMessage || isLoading) return;
+            const msg = lastFailedMessage;
+            lastFailedMessage = null;
+            setLoading(true);
+            sendMessage(msg);
+        }
 
-        function addMessage(content, role, metadata = {}) {
+        // ====================================================================
+        // Markdown Formatter (two-pass)
+        // ====================================================================
+        function formatText(text) {
+            if (!text) return '';
+
+            // First pass: split into blocks
+            const lines = text.split('\n');
+            const blocks = [];
+            let i = 0;
+
+            while (i < lines.length) {
+                const line = lines[i];
+
+                // Fenced code block
+                if (line.trimStart().startsWith('```')) {
+                    const lang = line.trimStart().slice(3).trim();
+                    const codeLines = [];
+                    i++;
+                    while (i < lines.length && !lines[i].trimStart().startsWith('```')) {
+                        codeLines.push(lines[i]);
+                        i++;
+                    }
+                    i++; // skip closing ```
+                    blocks.push(`<pre><code>${escapeHtml(codeLines.join('\n'))}</code></pre>`);
+                    continue;
+                }
+
+                // Horizontal rule
+                if (/^---+$/.test(line.trim()) || /^\*\*\*+$/.test(line.trim())) {
+                    blocks.push('<hr>');
+                    i++;
+                    continue;
+                }
+
+                // Headers
+                const headerMatch = line.match(/^(#{2,4})\s+(.+)/);
+                if (headerMatch) {
+                    const level = headerMatch[1].length;
+                    blocks.push(`<h${level}>${formatInline(headerMatch[2])}</h${level}>`);
+                    i++;
+                    continue;
+                }
+
+                // Blockquote
+                if (line.trimStart().startsWith('> ')) {
+                    const quoteLines = [];
+                    while (i < lines.length && lines[i].trimStart().startsWith('> ')) {
+                        quoteLines.push(lines[i].replace(/^>\s?/, ''));
+                        i++;
+                    }
+                    blocks.push(`<blockquote>${formatInline(quoteLines.join('<br>'))}</blockquote>`);
+                    continue;
+                }
+
+                // Unordered list
+                if (/^\s*[-*]\s+/.test(line)) {
+                    const listItems = [];
+                    while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
+                        listItems.push(lines[i].replace(/^\s*[-*]\s+/, ''));
+                        i++;
+                    }
+                    blocks.push('<ul>' + listItems.map(li => `<li>${formatInline(li)}</li>`).join('') + '</ul>');
+                    continue;
+                }
+
+                // Ordered list
+                if (/^\s*\d+[.)]\s+/.test(line)) {
+                    const listItems = [];
+                    while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])) {
+                        listItems.push(lines[i].replace(/^\s*\d+[.)]\s+/, ''));
+                        i++;
+                    }
+                    blocks.push('<ol>' + listItems.map(li => `<li>${formatInline(li)}</li>`).join('') + '</ol>');
+                    continue;
+                }
+
+                // Empty line
+                if (line.trim() === '') {
+                    i++;
+                    continue;
+                }
+
+                // Paragraph — collect consecutive non-empty, non-special lines
+                const paraLines = [];
+                while (i < lines.length &&
+                    lines[i].trim() !== '' &&
+                    !lines[i].trimStart().startsWith('```') &&
+                    !lines[i].trimStart().startsWith('> ') &&
+                    !/^#{2,4}\s+/.test(lines[i]) &&
+                    !/^\s*[-*]\s+/.test(lines[i]) &&
+                    !/^\s*\d+[.)]\s+/.test(lines[i]) &&
+                    !/^---+$/.test(lines[i].trim()) &&
+                    !/^\*\*\*+$/.test(lines[i].trim())
+                ) {
+                    paraLines.push(lines[i]);
+                    i++;
+                }
+                blocks.push(`<p>${formatInline(paraLines.join('<br>'))}</p>`);
+            }
+
+            return blocks.join('');
+        }
+
+        function formatInline(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                // Bold
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                // Italic
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                // Inline code
+                .replace(/`([^`]+?)`/g, '<code>$1</code>')
+                // Citations [n]
+                .replace(/\[(\d+)\]/g, '<span class="citation" onclick="highlightPaper($1)">[$1]</span>')
+                // Links [text](url)
+                .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+        }
+
+        // ====================================================================
+        // UI Functions
+        // ====================================================================
+        function addMessage(content, role, metadata = {}, restored = false) {
             const div = document.createElement('div');
-            div.className = `message ${role}`;
+            div.className = `message ${role}` + (restored ? ' restored' : '');
 
-            // Avatar for assistant
             const avatarHtml = role === 'assistant'
                 ? `<div class="avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div>`
                 : '';
@@ -674,11 +1498,10 @@
             let toolsHtml = '';
             if (role === 'assistant' && metadata.tools_used && metadata.tools_used.length > 0) {
                 const badges = metadata.tools_used.map(tool => {
-                    // Clean tool name
                     const name = tool.replace(/_/g, ' ');
                     return `<span class="tool-badge">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                        ${name}
+                        ${escapeHtml(name)}
                     </span>`;
                 }).join('');
 
@@ -692,8 +1515,40 @@
             div.innerHTML = `
                 ${avatarHtml}
                 <div class="message-content">
-                    ${formatText(content)}
+                    ${role === 'user' ? escapeHtml(content) : formatText(content)}
                     ${toolsHtml}
+                </div>
+            `;
+
+            els.messages.appendChild(div);
+            if (!restored) scrollToBottom();
+        }
+
+        function addMessageRaw(html, role, restored = false) {
+            const div = document.createElement('div');
+            div.className = `message ${role}` + (restored ? ' restored' : '');
+
+            const avatarHtml = role === 'assistant'
+                ? `<div class="avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div>`
+                : '';
+
+            div.innerHTML = `${avatarHtml}<div class="message-content">${html}</div>`;
+            els.messages.appendChild(div);
+            if (!restored) scrollToBottom();
+        }
+
+        function addErrorMessage(text) {
+            const div = document.createElement('div');
+            div.className = 'message assistant';
+
+            div.innerHTML = `
+                <div class="avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div>
+                <div class="message-content">
+                    <p>${escapeHtml(text)}</p>
+                    <button class="retry-btn" onclick="retryLastMessage()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Retry
+                    </button>
                 </div>
             `;
 
@@ -701,33 +1556,60 @@
             scrollToBottom();
         }
 
-        function formatText(text) {
-            if (!text) return '';
-            return text
-                .replace(/</g, '&lt;').replace(/>/g, '&gt;') // Escape HTML
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/`(.*?)`/g, '<code>$1</code>')
-                .replace(/\[(\d+)\]/g, '<span class="citation" onclick="highlightPaper($1)">[$1]</span>')
-                .replace(/\n/g, '<br>');
+        function addSystemMessage(text, restored = false) {
+            const div = document.createElement('div');
+            div.className = 'system-message' + (restored ? ' restored' : '');
+            div.textContent = text;
+            els.messages.appendChild(div);
         }
 
         function updatePapersList() {
             els.papersCount.textContent = papers.length;
             if (papers.length === 0) {
-                els.papersList.innerHTML = '<div style="text-align:center; color:var(--text-secondary); margin-top:2rem;">No papers context.</div>';
+                els.papersList.innerHTML = '<div style="text-align:center; color:var(--text-secondary); margin-top:2rem;">No papers in context.</div>';
                 return;
             }
 
-            els.papersList.innerHTML = papers.map((paper, idx) => `
-                <div class="paper-card" onclick="pasteCitation(${idx})">
-                    <div style="display:flex; justify-content:space-between">
-                        <span class="paper-index">[${idx}]</span>
-                        <span style="font-size:0.7rem; color:#9ca3af">${paper.year || 'N/A'}</span>
+            els.papersList.innerHTML = papers.map((paper, idx) => {
+                const doiLink = paper.doi
+                    ? `<a class="paper-doi-link" href="https://doi.org/${escapeAttr(paper.doi)}" target="_blank" rel="noopener">DOI</a>`
+                    : '';
+                const sourceBadge = paper.source
+                    ? `<span class="paper-source-badge">${escapeHtml(paper.source.replace(/_/g, ' '))}</span>`
+                    : '';
+                const abstractHtml = paper.abstract
+                    ? `<div class="paper-abstract">${escapeHtml(paper.abstract)}</div>`
+                    : '';
+
+                return `
+                    <div class="paper-card" data-paper-index="${idx}">
+                        <div class="paper-card-header">
+                            <span class="paper-index">[${idx}]</span>
+                            <span class="paper-year">${escapeHtml(String(paper.year || 'N/A'))}</span>
+                        </div>
+                        <div class="paper-title">${escapeHtml(paper.title)}</div>
+                        <div class="paper-authors">${escapeHtml(paper.authors || 'Unknown')}</div>
+                        ${abstractHtml}
+                        <div class="paper-footer">
+                            ${sourceBadge}
+                            ${doiLink}
+                            <button class="paper-cite-btn" onclick="insertCitation(${idx})">Cite</button>
+                        </div>
                     </div>
-                    <div style="font-weight:500; margin-bottom:2px;">${paper.title}</div>
-                    <div class="paper-meta">${paper.authors ? paper.authors.substring(0, 50) + '...' : 'Unknown'}</div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+        }
+
+        function insertCitation(index) {
+            const input = els.input;
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const text = input.value;
+            const citation = `[${index}]`;
+            input.value = text.substring(0, start) + citation + text.substring(end);
+            input.selectionStart = input.selectionEnd = start + citation.length;
+            input.focus();
+            els.sendBtn.disabled = input.value.trim() === '';
         }
 
         function updateStatus(text) {
@@ -751,29 +1633,68 @@
         }
 
         function startNewChat() {
+            // Fire DELETE if we have a session
+            if (sessionId) {
+                fetch(`${API_BASE}/sessions/${sessionId}`, {
+                    method: 'DELETE',
+                    headers: { 'X-User-Id': USER_ID }
+                }).catch(() => {});
+            }
+
             sessionId = null;
             papers = [];
+            lastFailedMessage = null;
+            clearStorage();
+
+            const welcome = els.welcome;
             els.messages.innerHTML = '';
-            els.messages.appendChild(els.welcome);
-            els.welcome.classList.remove('hidden');
+            els.messages.appendChild(welcome);
+            welcome.classList.remove('hidden');
+
             updatePapersList();
             els.papersPanel.classList.add('collapsed');
+
+            // Re-shuffle quick actions
+            renderQuickActions();
         }
 
         function scrollToBottom() {
             els.messages.scrollTop = els.messages.scrollHeight;
         }
 
-        // Global function for citation clicks
+        // ====================================================================
+        // Citation highlight
+        // ====================================================================
         window.highlightPaper = function(index) {
-            if(els.papersPanel.classList.contains('collapsed')) togglePanel();
-            // In a real app, this would scroll to the paper card
+            if (els.papersPanel.classList.contains('collapsed')) togglePanel();
+
+            setTimeout(() => {
+                const card = els.papersList.querySelector(`[data-paper-index="${index}"]`);
+                if (!card) return;
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.classList.add('paper-highlight');
+                setTimeout(() => card.classList.remove('paper-highlight'), 2000);
+            }, 100);
         };
 
-        window.pasteCitation = function(index) {
-            // Optional: Click paper to ask about it
-            // els.input.value += ` [${index}]`;
-        };
+        window.insertCitation = insertCitation;
+        window.retryLastMessage = retryLastMessage;
+
+        // ====================================================================
+        // Utility
+        // ====================================================================
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function escapeAttr(str) {
+            return escapeHtml(str);
+        }
     </script>
 </body>
 </html>
