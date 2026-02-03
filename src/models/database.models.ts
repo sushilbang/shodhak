@@ -76,7 +76,7 @@ export interface Report {
     content: string;
     report_type: 'literature_review' | 'summary' | 'comparison';
     citations: Citation[];
-    craeted_at: Date;
+    created_at: Date;
 }
 
 export interface SemanticScholarPaper {
@@ -86,6 +86,7 @@ export interface SemanticScholarPaper {
     abstract: string | null;
     url: string;
     doi?: string;
+    externalIds?: { DOI?: string; ArXiv?: string; PubMed?: string; [key: string]: any };
     year?: number;
     venue?: string;
     citationCount?: number;
@@ -98,3 +99,32 @@ export interface SemanticScholarSearchResponse {
     data: SemanticScholarPaper[];
 }
 
+// --- Agent Session Persistence Models ---
+
+export interface AgentSession {
+    id: string; // UUID
+    user_id: number;
+    status: 'active' | 'expired' | 'ended';
+    created_at: Date;
+    last_activity_at: Date;
+    metadata: Record<string, any>;
+}
+
+export interface SessionMessage {
+    id: number;
+    session_id: string;
+    role: string;
+    content: string | null;
+    tool_calls: any | null;
+    tool_call_id: string | null;
+    name: string | null;
+    message_order: number;
+    created_at: Date;
+}
+
+export interface AgentSessionPaper {
+    id: number;
+    session_id: string;
+    paper_id: number;
+    added_at: Date;
+}

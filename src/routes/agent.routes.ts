@@ -11,6 +11,13 @@ router.post(
     agentController.chat.bind(agentController)
 );
 
+// GET /api/agent/sessions - List active sessions for user
+router.get(
+    '/sessions',
+    authMiddleware,
+    agentController.listSessions.bind(agentController)
+);
+
 // GET /api/agent/sessions/:id - Get session info
 router.get(
     '/sessions/:id',

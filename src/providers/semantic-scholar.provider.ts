@@ -19,7 +19,7 @@ export class SemanticScholarProvider implements PaperProvider {
 
     private client: AxiosInstance;
     private readonly BASE_URL = 'https://api.semanticscholar.org/graph/v1';
-    private readonly FIELDS = 'paperId,title,authors,abstract,url,doi,year,venue,citationCount';
+    private readonly FIELDS = 'paperId,title,authors,abstract,url,externalIds,year,venue,citationCount';
     private readonly MAX_RETRIES = 3;
     private readonly BASE_DELAY_MS = 2000;
 
@@ -84,6 +84,9 @@ export class SemanticScholarProvider implements PaperProvider {
     }
 
     private normalizePaper(ssPaper: SemanticScholarPaper): RawPaperResult {
+        // DOI may be in externalIds (new API) or top-level (legacy)
+        const doi = ssPaper.doi || ssPaper.externalIds?.DOI;
+
         return {
             id: ssPaper.paperId,
             title: ssPaper.title,
@@ -93,7 +96,7 @@ export class SemanticScholarProvider implements PaperProvider {
             })),
             abstract: ssPaper.abstract || undefined,
             url: ssPaper.url,
-            doi: ssPaper.doi,
+            doi,
             year: ssPaper.year,
             venue: ssPaper.venue,
             citationCount: ssPaper.citationCount,

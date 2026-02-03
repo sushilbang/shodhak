@@ -1,0 +1,114 @@
+{
+  "version": "1.0",
+  "description": "Ground truth dataset for Shodhak benchmarking",
+  "queries": [
+    {
+      "id": "q1",
+      "query": "transformer attention mechanism neural networks",
+      "category": "deep_learning",
+      "expected_keywords": ["attention", "transformer", "self-attention", "neural"],
+      "relevant_dois": [
+        "10.48550/arXiv.1706.03762",
+        "10.48550/arXiv.1810.04805"
+      ],
+      "min_expected_results": 5
+    },
+    {
+      "id": "q2",
+      "query": "retrieval augmented generation RAG large language models",
+      "category": "nlp",
+      "expected_keywords": ["retrieval", "augmented", "generation", "RAG", "LLM"],
+      "relevant_dois": [
+        "10.48550/arXiv.2005.11401",
+        "10.48550/arXiv.2312.10997"
+      ],
+      "min_expected_results": 5
+    },
+    {
+      "id": "q3",
+      "query": "graph neural networks node classification",
+      "category": "deep_learning",
+      "expected_keywords": ["graph", "neural", "node", "GNN", "classification"],
+      "relevant_dois": [],
+      "min_expected_results": 5
+    },
+    {
+      "id": "q4",
+      "query": "federated learning privacy preserving machine learning",
+      "category": "privacy",
+      "expected_keywords": ["federated", "privacy", "distributed", "learning"],
+      "relevant_dois": [],
+      "min_expected_results": 5
+    },
+    {
+      "id": "q5",
+      "query": "BERT language model pre-training",
+      "category": "nlp",
+      "expected_keywords": ["BERT", "pre-training", "language", "model"],
+      "relevant_dois": [
+        "10.48550/arXiv.1810.04805"
+      ],
+      "min_expected_results": 5
+    },
+    {
+      "id": "q6",
+      "query": "diffusion models image generation",
+      "category": "generative",
+      "expected_keywords": ["diffusion", "image", "generation", "denoising"],
+      "relevant_dois": [],
+      "min_expected_results": 5
+    },
+    {
+      "id": "q7",
+      "query": "reinforcement learning from human feedback RLHF",
+      "category": "alignment",
+      "expected_keywords": ["reinforcement", "human", "feedback", "RLHF", "alignment"],
+      "relevant_dois": [],
+      "min_expected_results": 5
+    },
+    {
+      "id": "q8",
+      "query": "knowledge graph embedding link prediction",
+      "category": "knowledge_representation",
+      "expected_keywords": ["knowledge", "graph", "embedding", "link", "prediction"],
+      "relevant_dois": [],
+      "min_expected_results": 5
+    },
+    {
+      "id": "q9",
+      "query": "multi-modal learning vision language models",
+      "category": "multimodal",
+      "expected_keywords": ["multi-modal", "vision", "language", "CLIP", "multimodal"],
+      "relevant_dois": [],
+      "min_expected_results": 5
+    },
+    {
+      "id": "q10",
+      "query": "chain of thought prompting reasoning",
+      "category": "prompting",
+      "expected_keywords": ["chain", "thought", "reasoning", "prompting", "CoT"],
+      "relevant_dois": [],
+      "min_expected_results": 5
+    }
+  ],
+  "refinement_pairs": [
+    {
+      "id": "r1",
+      "original": "I want to learn about attention",
+      "clarified": "transformer self-attention mechanism deep learning",
+      "context": "User interested in transformer architecture attention mechanisms"
+    },
+    {
+      "id": "r2",
+      "original": "papers about making AI safe",
+      "clarified": "AI safety alignment reinforcement learning human feedback",
+      "context": "User interested in AI alignment and safety research"
+    },
+    {
+      "id": "r3",
+      "original": "how to make models smaller",
+      "clarified": "model compression pruning quantization knowledge distillation",
+      "context": "User interested in model efficiency techniques"
+    }
+  ]
+}

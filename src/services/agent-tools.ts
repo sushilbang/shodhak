@@ -1,8 +1,10 @@
 import { ToolDefinition, ToolResult, AgentContext } from "../types/agent.types";
 import { searchService } from './search.service';
+import { enhancedSearchService } from "./enhanced-search.service";
 import { embeddingService } from "./embedding.service";
 import { llmService } from "./llm.service";
 import { knowledgeService } from "./knowledge.service";
+import { contextManager } from "./agent-context";
 import { Paper } from "../models/database.models";
 import { logger } from '../utils/logger';
 
@@ -272,7 +274,17 @@ export class ToolExecutor {
         context: AgentContext
     ): Promise<ToolResult> {
         const limit = Math.min(args.limit || 10, 20);
-        const papers = await searchService.searchPapers(args.query, limit);
+
+        // Use enhanced search with multi-provider (OpenAlex + Semantic Scholar)
+        const result = await enhancedSearchService.search(args.query, {
+            limit,
+            useExpansion: true,
+            useReranking: true,
+            multiProvider: true,
+            deduplicateByDoi: true,
+        });
+
+        const papers = result.papers;
 
         // add papers to context (avoid duplicates by external_id)
         const existingIds = new Set(context.papers.map(p => p.external_id));
@@ -280,18 +292,32 @@ export class ToolExecutor {
         context.papers.push(...newPapers);
         context.metadata.searchCount++;
 
+        // Persist papers to session
+        for (const p of newPapers) {
+            if (p.id) {
+                await contextManager.addPaperToSession(context, p.id);
+            }
+        }
+
         return {
             success: true,
             data: {
                 newPapersFound: newPapers.length,
                 totalPapersInContext: context.papers.length,
+                searchMetadata: {
+                    providers: 'openalex + semantic_scholar',
+                    totalFound: result.metadata.totalFound,
+                    deduplicated: result.metadata.deduplicated,
+                    reranked: result.metadata.reranked,
+                    queryVariants: result.metadata.queryVariants,
+                },
                 papers: papers.map((p) => ({
                     index: context.papers.findIndex(cp => cp.external_id === p.external_id),
                     title: p.title,
                     authors: p.authors.map(a => a.name).join(', '),
                     year: p.year,
                     abstractPreview: p.abstract?.slice(0, 200) + '...'
-                })) 
+                }))
             }
         };
     }
@@ -312,6 +338,9 @@ export class ToolExecutor {
         const existingIdx = context.papers.findIndex(p => p.external_id === paper.external_id);
         if(existingIdx === -1) {
             context.papers.push(paper);
+            if (paper.id) {
+                await contextManager.addPaperToSession(context, paper.id);
+            }
         }
 
         const index = existingIdx === -1 ? context.papers.length - 1 : existingIdx;
@@ -342,6 +371,13 @@ export class ToolExecutor {
 
         const newPapers = results.filter(r => !existingIds.has(r.paper.external_id)).map(r => r.paper);
         context.papers.push(...newPapers);
+
+        // Persist papers to session
+        for (const p of newPapers) {
+            if (p.id) {
+                await contextManager.addPaperToSession(context, p.id);
+            }
+        }
 
         return {
             success: true,

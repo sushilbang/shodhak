@@ -1,22 +1,47 @@
 import OpenAI from 'openai';
 import { logger } from '../utils/logger';
 import { Paper, Citation } from '../models/database.models';
+import { createLLMClient, createReasoningClient, createFastClient, LLMProvider } from '../benchmark/utils/llm-client.factory';
 
 class LLMService {
     private client: OpenAI;
-    private readonly MODEL = process.env.OLLAMA_MODEL || 'llama3.2';
+    private readonly MODEL: string;
     private readonly MAX_TOKENS = 4096;
+    private readonly provider: LLMProvider;
+
+    // Dual-model support
+    private reasoningClient: OpenAI;
+    private readonly reasoningModel: string;
+    private fastClient: OpenAI;
+    private readonly fastModel: string;
 
     constructor() {
-        this.client = new OpenAI({
-            baseURL: process.env.OLLAMA_URL || 'http://localhost:11434/v1',
-            apiKey: 'ollama',
+        const { client, model, provider } = createLLMClient();
+        this.client = client;
+        this.MODEL = model;
+        this.provider = provider;
+
+        const reasoning = createReasoningClient();
+        this.reasoningClient = reasoning.client;
+        this.reasoningModel = reasoning.model;
+
+        const fast = createFastClient();
+        this.fastClient = fast.client;
+        this.fastModel = fast.model;
+
+        logger.info('LLM service initialized', {
+            provider,
+            model,
+            reasoningModel: this.reasoningModel,
+            fastModel: this.fastModel
         });
     }
 
+    // --- Simple tasks use fast model ---
+
     async refineQuery(userQuery: string): Promise<string> {
-        const response = await this.client.chat.completions.create({
-            model: this.MODEL,
+        const response = await this.fastClient.chat.completions.create({
+            model: this.fastModel,
             max_tokens: 256,
             messages: [
                 {
@@ -43,8 +68,8 @@ Respond with ONLY the simple keyword query, nothing else.`,
     }
 
     async generateClarifyingQuestions(userQuery: string): Promise<string[]> {
-        const response = await this.client.chat.completions.create({
-            model: this.MODEL,
+        const response = await this.fastClient.chat.completions.create({
+            model: this.fastModel,
             max_tokens: 512,
             messages: [
                 {
@@ -72,8 +97,8 @@ Respond with ONLY the questions, one per line, numbered.`,
     }
 
     async summarizePaper(paper: Paper): Promise<string> {
-        const response = await this.client.chat.completions.create({
-            model: this.MODEL,
+        const response = await this.fastClient.chat.completions.create({
+            model: this.fastModel,
             max_tokens: 512,
             messages: [
                 {
@@ -93,6 +118,8 @@ Provide a concise summary.`,
         return response.choices[0]?.message?.content?.trim() || '';
     }
 
+    // --- Complex tasks use reasoning model ---
+
     async generateLiteratureReview(
         papers: Paper[],
         query: string
@@ -107,8 +134,8 @@ Abstract: ${p.abstract}`;
             })
             .join('\n---\n');
 
-        const response = await this.client.chat.completions.create({
-            model: this.MODEL,
+        const response = await this.reasoningClient.chat.completions.create({
+            model: this.reasoningModel,
             max_tokens: this.MAX_TOKENS,
             messages: [
                 {
@@ -166,8 +193,8 @@ Abstract: ${p.abstract}`;
             })
             .join('\n--\n');
 
-        const response = await this.client.chat.completions.create({
-            model: this.MODEL,
+        const response = await this.reasoningClient.chat.completions.create({
+            model: this.reasoningModel,
             max_tokens: this.MAX_TOKENS,
             messages: [
                 {
@@ -204,8 +231,8 @@ Abstract: ${p.abstract || 'No abstract available'}
             })
             .join('\n');
 
-        const response = await this.client.chat.completions.create({
-            model: this.MODEL,
+        const response = await this.reasoningClient.chat.completions.create({
+            model: this.reasoningModel,
             max_tokens: 2048,
             messages: [
                 {

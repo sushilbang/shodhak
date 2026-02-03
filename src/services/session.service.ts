@@ -111,7 +111,7 @@ class SessionService {
             content: row.content,
             report_type: row.report_type,
             citations: typeof row.citations === 'string' ? JSON.parse(row.citations) : row.citations,
-            craeted_at: row.created_at,
+            created_at: row.created_at,
         }));
     }
     // create a new research session when user starts a research query
@@ -367,7 +367,7 @@ class SessionService {
             content: result.rows[0].content,
             report_type: result.rows[0].report_type,
             citations: result.rows[0].citations,
-            craeted_at: result.rows[0].created_at,
+            created_at: result.rows[0].created_at,
         };
     }
 }
