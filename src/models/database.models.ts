@@ -30,7 +30,7 @@ export interface Paper {
     year?: number;
     venue?: string;
     citation_count?: number;
-    source: 'semantic_scholar' | 'openalex' | 'crossref' | 'arxiv' | 'custom';
+    source: 'semantic_scholar' | 'openalex' | 'crossref' | 'arxiv' | 'pubmed' | 'custom';
     metadata?: Record<string, any>;
     created_at?: Date;
 }

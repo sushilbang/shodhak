@@ -8,10 +8,12 @@ import {
     OpenAlexProvider,
     CrossrefProvider,
     SemanticScholarProvider,
+    ArxivProvider,
+    PubMedProvider,
 } from '../providers';
 import { getLimiter } from '../utils/concurrency-limiter';
 
-type ProviderName = 'openalex' | 'semantic_scholar' | 'crossref';
+type ProviderName = 'openalex' | 'semantic_scholar' | 'crossref' | 'arxiv' | 'pubmed';
 
 class SearchService {
     private providers: Map<ProviderName, PaperProvider>;
@@ -23,6 +25,8 @@ class SearchService {
         this.providers.set('openalex', new OpenAlexProvider());
         this.providers.set('semantic_scholar', new SemanticScholarProvider());
         this.providers.set('crossref', new CrossrefProvider());
+        this.providers.set('arxiv', new ArxivProvider());
+        this.providers.set('pubmed', new PubMedProvider());
 
         // Select primary provider from env
         const primaryName = (process.env.PRIMARY_PAPER_PROVIDER || 'openalex') as ProviderName;
