@@ -1,0 +1,14 @@
+{
+  "model": "qwen/qwen3-32b",
+  "provider": "groq",
+  "timestamp": "2026-02-05T17:23:12.602Z",
+  "score": 39,
+  "race_score": 65,
+  "fact_score": 0,
+  "comprehensiveness": 64,
+  "insight": 64,
+  "instruction_following": 67,
+  "readability": 64,
+  "citation_accuracy": 0,
+  "support_rate": 0
+}

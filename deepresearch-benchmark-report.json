@@ -1,0 +1,638 @@
+{
+  "timestamp": "2026-02-05T17:23:12.602Z",
+  "benchmarkType": "deepresearch",
+  "version": "1.0",
+  "combinedScore": 0.3894736842105263,
+  "leaderboardScore": 39,
+  "race": {
+    "timestamp": "2026-02-05T17:22:52.325Z",
+    "benchmarkType": "race",
+    "totalQueries": 2,
+    "completedQueries": 1,
+    "metrics": {
+      "avgComprehensiveness": 0.6428571428571429,
+      "avgInsight": 0.6428571428571429,
+      "avgInstructionFollowing": 0.6666666666666666,
+      "avgReadability": 0.6428571428571429,
+      "avgOverallScore": 0.6491228070175439,
+      "stdOverallScore": 0,
+      "totalEvaluations": 1
+    },
+    "queryResults": [
+      {
+        "queryId": "dr-001",
+        "topic": "Transformer Architecture",
+        "domain": "deep_learning",
+        "prompt": "Conduct a comprehensive literature review on the evolution of transformer architectures from the original 'Attention Is All You Need' paper to modern efficient transformers. Analyze the key innovation...",
+        "reportLength": 1801,
+        "scores": {
+          "comprehensiveness": 0.6428571428571429,
+          "insight": 0.6428571428571429,
+          "instruction_following": 0.6666666666666666,
+          "readability": 0.6428571428571429,
+          "overall_score": 0.6491228070175439,
+          "raw_scores": {
+            "target_total": 9.25,
+            "reference_total": 5
+          },
+          "dimension_details": [
+            {
+              "dimension": "comprehensiveness",
+              "weight": 0.3,
+              "criteria_scores": [
+                {
+                  "criterion": "Topic Coverage Breadth",
+                  "score_target": 9,
+                  "score_reference": 5,
+                  "justification": "The report covers attention mechanisms, positional encodings, architectural modifications, and computational tradeoffs across DETR, LLMs, and graph-text fusion models. It addresses historical development and current state."
+                },
+                {
+                  "criterion": "Key Concepts Inclusion",
+                  "score_target": 9,
+                  "score_reference": 5,
+                  "justification": "The report covers attention mechanisms, positional encodings, architectural modifications, and computational tradeoffs across DETR, LLMs, and graph-text fusion models. It addresses historical development and current state."
+                },
+                {
+                  "criterion": "Historical Development",
+                  "score_target": 9,
+                  "score_reference": 5,
+                  "justification": "The report covers attention mechanisms, positional encodings, architectural modifications, and computational tradeoffs across DETR, LLMs, and graph-text fusion models. It addresses historical development and current state."
+                },
+                {
+                  "criterion": "Current State Coverage",
+                  "score_target": 9,
+                  "score_reference": 5,
+                  "justification": "The report covers attention mechanisms, positional encodings, architectural modifications, and computational tradeoffs across DETR, LLMs, and graph-text fusion models. It addresses historical development and current state."
+                }
+              ],
+              "target_score": 9,
+              "reference_score": 5,
+              "normalized_score": 0.6428571428571429
+            },
+            {
+              "dimension": "insight",
+              "weight": 0.25,
+              "criteria_scores": [
+                {
+                  "criterion": "Technical Depth",
+                  "score_target": 9,
+                  "score_reference": 5,
+                  "justification": "Analyzes attention mechanisms and architectural changes thoroughly with examples like sparse attention and object queries."
+                },
+                {
+                  "criterion": "Critical Analysis",
+                  "score_target": 9,
+                  "score_reference": 5,
+                  "justification": "Analyzes attention mechanisms and architectural changes thoroughly with examples like sparse attention and object queries."
+                },
+                {
+                  "criterion": "Connections and Synthesis",
+                  "score_target": 9,
+                  "score_reference": 5,
+                  "justification": "Analyzes attention mechanisms and architectural changes thoroughly with examples like sparse attention and object queries."
+                },
+                {
+                  "criterion": "Future Directions",
+                  "score_target": 9,
+                  "score_reference": 5,
+                  "justification": "Analyzes attention mechanisms and architectural changes thoroughly with examples like sparse attention and object queries."
+                }
+              ],
+              "target_score": 9,
+              "reference_score": 5,
+              "normalized_score": 0.6428571428571429
+            },
+            {
+              "dimension": "instruction_following",
+              "weight": 0.25,
+              "criteria_scores": [
+                {
+                  "criterion": "Task Relevance",
+                  "score_target": 10,
+                  "score_reference": 5,
+                  "justification": "Directly addresses the evolution of Transformers, key innovations, and tradeoffs as requested."
+                },
+                {
+                  "criterion": "Scope Adherence",
+                  "score_target": 10,
+                  "score_reference": 5,
+                  "justification": "Directly addresses the evolution of Transformers, key innovations, and tradeoffs as requested."
+                },
+                {
+                  "criterion": "Format Compliance",
+                  "score_target": 10,
+                  "score_reference": 5,
+                  "justification": "Directly addresses the evolution of Transformers, key innovations, and tradeoffs as requested."
+                },
+                {
+                  "criterion": "Constraint Satisfaction",
+                  "score_target": 10,
+                  "score_reference": 5,
+                  "justification": "Directly addresses the evolution of Transformers, key innovations, and tradeoffs as requested."
+                }
+              ],
+              "target_score": 10,
+              "reference_score": 5,
+              "normalized_score": 0.6666666666666666
+            },
+            {
+              "dimension": "readability",
+              "weight": 0.2,
+              "criteria_scores": [
+                {
+                  "criterion": "Clarity of Writing",
+                  "score_target": 9,
+                  "score_reference": 5,
+                  "justification": "Language is clear and precise, though some sentences are lengthy."
+                },
+                {
+                  "criterion": "Logical Organization",
+                  "score_target": 9,
+                  "score_reference": 5,
+                  "justification": "Language is clear and precise, though some sentences are lengthy."
+                },
+                {
+                  "criterion": "Technical Accessibility",
+                  "score_target": 9,
+                  "score_reference": 5,
+                  "justification": "Analyzes attention mechanisms and architectural changes thoroughly with examples like sparse attention and object queries."
+                },
+                {
+                  "criterion": "Coherence",
+                  "score_target": 9,
+                  "score_reference": 5,
+                  "justification": "Language is clear and precise, though some sentences are lengthy."
+                }
+              ],
+              "target_score": 9,
+              "reference_score": 5,
+              "normalized_score": 0.6428571428571429
+            }
+          ]
+        },
+        "criteria": [
+          {
+            "name": "comprehensiveness",
+            "weight": 0.3,
+            "criteria": [
+              {
+                "criterion": "Topic Coverage Breadth",
+                "explanation": "Does the report cover all major aspects and sub-topics of the research area?",
+                "weight": 0.35
+              },
+              {
+                "criterion": "Key Concepts Inclusion",
+                "explanation": "Are all fundamental concepts, definitions, and terminology properly introduced and explained?",
+                "weight": 0.25
+              },
+              {
+                "criterion": "Historical Development",
+                "explanation": "Does the report trace the evolution of the field and major milestones?",
+                "weight": 0.2
+              },
+              {
+                "criterion": "Current State Coverage",
+                "explanation": "Does the report adequately cover the current state-of-the-art and recent advances?",
+                "weight": 0.2
+              }
+            ]
+          },
+          {
+            "name": "insight",
+            "weight": 0.25,
+            "criteria": [
+              {
+                "criterion": "Technical Depth",
+                "explanation": "Does the report provide deep technical analysis of methods, algorithms, and mechanisms?",
+                "weight": 0.3
+              },
+              {
+                "criterion": "Critical Analysis",
+                "explanation": "Does the report critically evaluate approaches, identifying strengths, weaknesses, and tradeoffs?",
+                "weight": 0.3
+              },
+              {
+                "criterion": "Connections and Synthesis",
+                "explanation": "Does the report make meaningful connections between different works and synthesize insights?",
+                "weight": 0.25
+              },
+              {
+                "criterion": "Future Directions",
+                "explanation": "Does the report identify open problems, challenges, and promising research directions?",
+                "weight": 0.15
+              }
+            ]
+          },
+          {
+            "name": "instruction_following",
+            "weight": 0.25,
+            "criteria": [
+              {
+                "criterion": "Task Relevance",
+                "explanation": "Does the report directly address the specific question or topic requested?",
+                "weight": 0.35
+              },
+              {
+                "criterion": "Scope Adherence",
+                "explanation": "Does the report maintain appropriate scope without unnecessary tangents?",
+                "weight": 0.25
+              },
+              {
+                "criterion": "Format Compliance",
+                "explanation": "Does the report follow expected formatting, structure, and organization?",
+                "weight": 0.2
+              },
+              {
+                "criterion": "Constraint Satisfaction",
+                "explanation": "Does the report satisfy any specific constraints or requirements in the prompt?",
+                "weight": 0.2
+              }
+            ]
+          },
+          {
+            "name": "readability",
+            "weight": 0.2,
+            "criteria": [
+              {
+                "criterion": "Clarity of Writing",
+                "explanation": "Is the writing clear, precise, and easy to understand?",
+                "weight": 0.3
+              },
+              {
+                "criterion": "Logical Organization",
+                "explanation": "Is the report well-organized with clear sections and logical flow?",
+                "weight": 0.3
+              },
+              {
+                "criterion": "Technical Accessibility",
+                "explanation": "Are complex concepts explained in an accessible manner without oversimplification?",
+                "weight": 0.25
+              },
+              {
+                "criterion": "Coherence",
+                "explanation": "Are transitions smooth and does the narrative maintain coherence throughout?",
+                "weight": 0.15
+              }
+            ]
+          }
+        ],
+        "latencyMs": 18606,
+        "papersRetrieved": 3
+      }
+    ],
+    "summary": {
+      "strengths": [],
+      "weaknesses": [],
+      "recommendations": []
+    },
+    "configuration": {
+      "queriesLimit": 2,
+      "papersPerQuery": 10,
+      "evaluationModel": "groq"
+    }
+  },
+  "fact": {
+    "timestamp": "2026-02-05T17:23:12.592Z",
+    "benchmarkType": "fact",
+    "totalQueries": 2,
+    "completedQueries": 1,
+    "metrics": {
+      "avgCitationAccuracy": 0,
+      "avgSupportRate": 0,
+      "totalCitations": 50,
+      "totalSupported": 0,
+      "totalUnsupported": 0,
+      "totalUnknown": 20,
+      "totalEvaluations": 1
+    },
+    "queryResults": [
+      {
+        "queryId": "dr-001",
+        "topic": "Transformer Architecture",
+        "domain": "deep_learning",
+        "reportLength": 1672,
+        "result": {
+          "totalCitations": 50,
+          "validatableCitations": 0,
+          "effectiveCitations": 0,
+          "citationAccuracy": 0,
+          "supportRate": 0,
+          "statusBreakdown": {
+            "supported": 0,
+            "unsupported": 0,
+            "unknown": 20
+          },
+          "validations": [
+            {
+              "citation": {
+                "fact": "First, paper is a survey on Large Language Models (LLMs).",
+                "ref_idx": "1",
+                "url": "",
+                "position": 334,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "Paper is about DETR (DEtection TRansformer), which is an application of transformers in computer vision, specifically object detection.",
+                "ref_idx": "2",
+                "url": "",
+                "position": 559,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "Paper is about enhancing graph learning by integrating text, using transformers, focusing on combining structured data with textual info.",
+                "ref_idx": "3",
+                "url": "",
+                "position": 833,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "The first one is a survey of LLMs, which probably touches on transformers.",
+                "ref_idx": "1",
+                "url": "",
+                "position": 1733,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "The first paper gives a general overview of LLMs, their architecture, training methods.",
+                "ref_idx": "1",
+                "url": "",
+                "position": 2062,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "The second paper discusses a specific application (DETR) and its evolution.",
+                "ref_idx": "2",
+                "url": "",
+                "position": 2155,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "The third talks about graph learning with transformers.",
+                "ref_idx": "3",
+                "url": "",
+                "position": 2228,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "For example, might discuss the original transformer and later efficient versions.",
+                "ref_idx": "1",
+                "url": "",
+                "position": 2346,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "discusses how DETR uses transformers in computer vision differently from NLP, so maybe mentions attention mechanisms and architectural choices.",
+                "ref_idx": "2",
+                "url": "",
+                "position": 2419,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "introduces a different application, integrating structure and text, which might require modifications to the standard transformer architecture.",
+                "ref_idx": "3",
+                "url": "",
+                "position": 2567,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": ", which might be covered in and .",
+                "ref_idx": "1",
+                "url": "",
+                "position": 2901,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": ", which might be covered in and .",
+                "ref_idx": "2",
+                "url": "",
+                "position": 2909,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "Paper might use attention to combine textual and structural data.",
+                "ref_idx": "3",
+                "url": "",
+                "position": 3005,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "might discuss this in the context of LLMs.",
+                "ref_idx": "1",
+                "url": "",
+                "position": 3201,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "may use positional info in graphs.",
+                "ref_idx": "3",
+                "url": "",
+                "position": 3297,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "mentions variations like BERT's masked language model, GPT's autoregressive, etc.",
+                "ref_idx": "1",
+                "url": "",
+                "position": 3436,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "mentions computational inefficiencies in DETR and possible fixes.",
+                "ref_idx": "2",
+                "url": "",
+                "position": 3791,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "might discuss efficient LLMs with reduced parameters or faster inference.",
+                "ref_idx": "1",
+                "url": "",
+                "position": 3861,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "For example, is a comprehensive survey of LLMs, so it could cover the general timeline.",
+                "ref_idx": "1",
+                "url": "",
+                "position": 4274,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            },
+            {
+              "citation": {
+                "fact": "is a specific application, showing how DETR adapted transformers and the challenges.",
+                "ref_idx": "2",
+                "url": "",
+                "position": 4353,
+                "type": "numbered"
+              },
+              "status": "unknown",
+              "confidence": 0,
+              "explanation": "No URL associated with citation",
+              "sourceAccessible": false
+            }
+          ],
+          "scrapedUrls": [],
+          "failedUrls": []
+        },
+        "latencyMs": 18422,
+        "papersRetrieved": 3
+      }
+    ],
+    "summary": {
+      "strengths": [
+        "Good citation density (avg 50.0 per report)"
+      ],
+      "weaknesses": [
+        "Low citation accuracy (0.0%)",
+        "Many citations not supported by sources",
+        "Many citations could not be validated (40.0%)"
+      ],
+      "recommendations": [
+        "Implement citation verification in the generation pipeline",
+        "Review and verify citations before finalizing reports",
+        "Use more stable URL sources (DOIs, arXiv links)"
+      ]
+    },
+    "configuration": {
+      "queriesLimit": 2,
+      "papersPerQuery": 10,
+      "maxCitationsPerReport": 20,
+      "jinaConfigured": true
+    }
+  },
+  "summary": {
+    "overallGrade": "F",
+    "strengths": [
+      "Good citation density (avg 50.0 per report)"
+    ],
+    "weaknesses": [
+      "Low citation accuracy (0.0%)",
+      "Many citations not supported by sources",
+      "Many citations could not be validated (40.0%)"
+    ],
+    "recommendations": [
+      "Implement citation verification in the generation pipeline",
+      "Review and verify citations before finalizing reports",
+      "Use more stable URL sources (DOIs, arXiv links)"
+    ]
+  },
+  "configuration": {
+    "queriesLimit": 2,
+    "papersPerQuery": 10,
+    "raceWeight": 0.6,
+    "factWeight": 0.4
+  }
+}

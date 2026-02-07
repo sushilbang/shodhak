@@ -5,6 +5,9 @@
 
 import { runRetrievalBenchmark, RetrievalBenchmarkResult } from './runners/retrieval-bench';
 import { runGenerationBenchmark } from './runners/generation-bench';
+import { runRACEBenchmark } from './runners/race-bench';
+import { runFACTBenchmark } from './runners/fact-bench';
+import { runDeepResearchBenchmark } from './runners/deepresearch-bench';
 import {
     printHeader,
     printKeyValue,
@@ -197,3 +200,6 @@ if (require.main === module) {
 }
 
 export { runFullBenchmark };
+export { runRACEBenchmark } from './runners/race-bench';
+export { runFACTBenchmark } from './runners/fact-bench';
+export { runDeepResearchBenchmark } from './runners/deepresearch-bench';
