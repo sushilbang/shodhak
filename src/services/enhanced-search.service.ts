@@ -6,7 +6,10 @@ import { logger } from '../utils/logger';
 import {
     OpenAlexProvider,
     SemanticScholarProvider,
+    ArxivProvider,
+    PubMedProvider,
     normalizeToInternalPaper,
+    PaperProvider,
 } from '../providers';
 import { getLimiter } from '../utils/concurrency-limiter';
 
@@ -45,10 +48,14 @@ const DEFAULT_OPTIONS: EnhancedSearchOptions = {
 class EnhancedSearchService {
     private openalexProvider: OpenAlexProvider;
     private semanticScholarProvider: SemanticScholarProvider;
+    private arxivProvider: ArxivProvider;
+    private pubmedProvider: PubMedProvider;
 
     constructor() {
         this.openalexProvider = new OpenAlexProvider();
         this.semanticScholarProvider = new SemanticScholarProvider();
+        this.arxivProvider = new ArxivProvider();
+        this.pubmedProvider = new PubMedProvider();
     }
 
     /**
@@ -100,6 +107,14 @@ class EnhancedSearchService {
                     // Semantic Scholar
                     searchPromises.push(
                         this.searchProvider(this.semanticScholarProvider, variant, opts.limit!)
+                    );
+                    // ArXiv
+                    searchPromises.push(
+                        this.searchProvider(this.arxivProvider, variant, opts.limit!)
+                    );
+                    // PubMed
+                    searchPromises.push(
+                        this.searchProvider(this.pubmedProvider, variant, opts.limit!)
                     );
                 }
 
@@ -189,7 +204,7 @@ class EnhancedSearchService {
      * Search a single provider, normalize results, and save to DB
      */
     private async searchProvider(
-        provider: OpenAlexProvider | SemanticScholarProvider,
+        provider: PaperProvider,
         query: string,
         limit: number
     ): Promise<Paper[]> {

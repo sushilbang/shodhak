@@ -305,7 +305,7 @@ export class ToolExecutor {
                 newPapersFound: newPapers.length,
                 totalPapersInContext: context.papers.length,
                 searchMetadata: {
-                    providers: 'openalex + semantic_scholar',
+                    providers: 'openalex + semantic_scholar + arxiv + pubmed',
                     totalFound: result.metadata.totalFound,
                     deduplicated: result.metadata.deduplicated,
                     reranked: result.metadata.reranked,
