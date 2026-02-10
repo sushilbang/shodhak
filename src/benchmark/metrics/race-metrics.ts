@@ -291,48 +291,42 @@ export async function scoreReport(
 ): Promise<RACEScores> {
     const { client, model } = createLLMClient();
 
-    // Build criteria string for prompt
+    // Build the expected JSON structure showing exact criterion names per dimension
+    const structureExample: Record<string, Record<string, { score_a: string; score_b: string; justification: string }>> = {};
+    for (const dim of criteria) {
+        structureExample[dim.name] = {};
+        for (const c of dim.criteria) {
+            structureExample[dim.name][c.criterion] = { score_a: 'N', score_b: 'N', justification: '...' };
+        }
+    }
+
     const criteriaStr = criteria.map(dim => {
-        const criteriaList = dim.criteria.map(c =>
-            `  - ${c.criterion} (weight: ${c.weight.toFixed(2)}): ${c.explanation}`
+        const criteriaList = dim.criteria.map((c, i) =>
+            `  ${i + 1}. "${c.criterion}": ${c.explanation}`
         ).join('\n');
-        return `${dim.name.toUpperCase()} (dimension weight: ${dim.weight.toFixed(2)}):\n${criteriaList}`;
+        return `${dim.name.toUpperCase()}:\n${criteriaList}`;
     }).join('\n\n');
 
-    const prompt = `You are an expert evaluator comparing two research reports on the same topic. Score each report on a 0-10 scale for each criterion.
+    const prompt = `You are an expert evaluator comparing two research reports. Score each report on a 0-10 scale for EACH criterion.
 
 RESEARCH TASK:
 ${task}
 
-REPORT A (Target Report to Evaluate):
+REPORT A (Target):
 ${targetReport.slice(0, 15000)}${targetReport.length > 15000 ? '\n[... truncated ...]' : ''}
 
-REPORT B (Reference Report for Comparison):
+REPORT B (Reference):
 ${referenceReport.slice(0, 15000)}${referenceReport.length > 15000 ? '\n[... truncated ...]' : ''}
 
 EVALUATION CRITERIA:
 ${criteriaStr}
 
-SCORING GUIDELINES:
-- 0-2: Very poor, criterion barely addressed
-- 3-4: Below average, significant gaps
-- 5-6: Average, meets basic expectations
-- 7-8: Good, exceeds expectations
-- 9-10: Excellent, exceptional quality
+SCORING SCALE: 0-2: Very poor | 3-4: Below avg | 5-6: Average | 7-8: Good | 9-10: Excellent
 
-For each criterion, provide:
-- criterion: The criterion name
-- score_a: Score for Report A (0-10)
-- score_b: Score for Report B (0-10)
-- justification: Brief explanation (1-2 sentences)
+IMPORTANT: Give a SEPARATE score and justification for EACH criterion. Be specific.
 
-Output as JSON:
-{
-  "evaluations": [
-    {"criterion": "...", "dimension": "...", "score_a": N, "score_b": N, "justification": "..."},
-    ...
-  ]
-}`;
+Output as JSON with this EXACT structure:
+${JSON.stringify(structureExample, null, 2)}`;
 
     const response = await client.chat.completions.create({
         model,
@@ -346,22 +340,97 @@ Output as JSON:
         throw new Error('Empty response from LLM');
     }
 
-    const parsed = JSON.parse(content) as {
-        evaluations: Array<{
-            criterion: string;
-            dimension?: string;
-            score_a: number;
-            score_b: number;
-            justification: string;
-        }>;
-    };
+    const parsed = JSON.parse(content) as Record<string, Record<string, { score_a: number; score_b: number; justification: string }>>;
 
-    return calculateWeightedScores(parsed.evaluations, criteria);
+    // Convert to structured scores format
+    const soloFormat: Record<string, Record<string, { score: number; justification: string }>> = {};
+    const refScores: Record<string, Record<string, number>> = {};
+
+    for (const [dimName, critMap] of Object.entries(parsed)) {
+        soloFormat[dimName] = {};
+        refScores[dimName] = {};
+        for (const [critName, vals] of Object.entries(critMap)) {
+            soloFormat[dimName][critName] = { score: vals.score_a, justification: vals.justification };
+            refScores[dimName][critName] = vals.score_b;
+        }
+    }
+
+    // Use calculateStructuredScores but override reference scores
+    return calculateStructuredScoresComparative(parsed, criteria);
+}
+
+/**
+ * Calculate structured scores for comparative (A vs B) mode
+ */
+function calculateStructuredScoresComparative(
+    evaluations: Record<string, Record<string, { score_a: number; score_b: number; justification: string }>>,
+    criteria: RACEDimension[]
+): RACEScores {
+    const dimensionScores: RACEDimensionScore[] = [];
+
+    for (const dim of criteria) {
+        const criteriaScores: RACECriterionScore[] = [];
+        const dimEvals = evaluations[dim.name] || {};
+
+        for (const crit of dim.criteria) {
+            let evalEntry = dimEvals[crit.criterion];
+
+            if (!evalEntry) {
+                const key = Object.keys(dimEvals).find(k =>
+                    k.toLowerCase().includes(crit.criterion.toLowerCase().slice(0, 12)) ||
+                    crit.criterion.toLowerCase().includes(k.toLowerCase().slice(0, 12))
+                );
+                if (key) evalEntry = dimEvals[key];
+            }
+
+            criteriaScores.push({
+                criterion: crit.criterion,
+                score_target: evalEntry ? Math.max(0, Math.min(10, evalEntry.score_a)) : 5,
+                score_reference: evalEntry ? Math.max(0, Math.min(10, evalEntry.score_b)) : 5,
+                justification: evalEntry?.justification || 'No explicit evaluation provided'
+            });
+        }
+
+        let targetWeightedSum = 0;
+        let referenceWeightedSum = 0;
+        for (let i = 0; i < dim.criteria.length; i++) {
+            targetWeightedSum += criteriaScores[i].score_target * dim.criteria[i].weight;
+            referenceWeightedSum += criteriaScores[i].score_reference * dim.criteria[i].weight;
+        }
+
+        const totalScore = targetWeightedSum + referenceWeightedSum;
+        const normalizedScore = totalScore > 0 ? targetWeightedSum / totalScore : 0.5;
+
+        dimensionScores.push({
+            dimension: dim.name, weight: dim.weight, criteria_scores: criteriaScores,
+            target_score: targetWeightedSum, reference_score: referenceWeightedSum,
+            normalized_score: normalizedScore
+        });
+    }
+
+    let targetTotal = 0;
+    let referenceTotal = 0;
+    for (const d of dimensionScores) {
+        targetTotal += d.target_score * d.weight;
+        referenceTotal += d.reference_score * d.weight;
+    }
+    const overallTotal = targetTotal + referenceTotal;
+    const dimMap = new Map(dimensionScores.map(d => [d.dimension, d.normalized_score]));
+
+    return {
+        comprehensiveness: dimMap.get('comprehensiveness') || 0.5,
+        insight: dimMap.get('insight') || 0.5,
+        instruction_following: dimMap.get('instruction_following') || 0.5,
+        readability: dimMap.get('readability') || 0.5,
+        overall_score: overallTotal > 0 ? targetTotal / overallTotal : 0.5,
+        raw_scores: { target_total: targetTotal, reference_total: referenceTotal },
+        dimension_details: dimensionScores
+    };
 }
 
 /**
  * Score a report without a reference (self-evaluation mode)
- * Uses a synthetic baseline approach
+ * Uses a structured per-dimension output to avoid fuzzy matching issues
  */
 export async function scoreReportSolo(
     report: string,
@@ -370,15 +439,24 @@ export async function scoreReportSolo(
 ): Promise<RACEScores> {
     const { client, model } = createLLMClient();
 
-    // Build criteria string for prompt
+    // Build the expected JSON structure showing exact criterion names per dimension
+    const structureExample: Record<string, Record<string, { score: string; justification: string }>> = {};
+    for (const dim of criteria) {
+        structureExample[dim.name] = {};
+        for (const c of dim.criteria) {
+            structureExample[dim.name][c.criterion] = { score: 'N (0-10)', justification: '...' };
+        }
+    }
+
+    // Build criteria description
     const criteriaStr = criteria.map(dim => {
-        const criteriaList = dim.criteria.map(c =>
-            `  - ${c.criterion} (weight: ${c.weight.toFixed(2)}): ${c.explanation}`
+        const criteriaList = dim.criteria.map((c, i) =>
+            `  ${i + 1}. "${c.criterion}": ${c.explanation}`
         ).join('\n');
-        return `${dim.name.toUpperCase()} (dimension weight: ${dim.weight.toFixed(2)}):\n${criteriaList}`;
+        return `${dim.name.toUpperCase()}:\n${criteriaList}`;
     }).join('\n\n');
 
-    const prompt = `You are an expert evaluator for research reports. Evaluate the following report on a 0-10 scale for each criterion.
+    const prompt = `You are an expert evaluator for research reports. Evaluate the report below on a 0-10 scale for EACH criterion listed.
 
 RESEARCH TASK:
 ${task}
@@ -389,25 +467,13 @@ ${report.slice(0, 20000)}${report.length > 20000 ? '\n[... truncated ...]' : ''}
 EVALUATION CRITERIA:
 ${criteriaStr}
 
-SCORING GUIDELINES:
-- 0-2: Very poor, criterion barely addressed
-- 3-4: Below average, significant gaps
-- 5-6: Average, meets basic expectations
-- 7-8: Good, exceeds expectations
-- 9-10: Excellent, exceptional quality
+SCORING SCALE:
+0-2: Very poor | 3-4: Below average | 5-6: Average | 7-8: Good | 9-10: Excellent
 
-For each criterion, provide:
-- criterion: The criterion name
-- score: Score (0-10)
-- justification: Brief explanation (1-2 sentences)
+IMPORTANT: You MUST give a SEPARATE score and justification for EACH criterion. Do NOT reuse the same justification. Be specific about what the report does well or poorly for each criterion.
 
-Output as JSON:
-{
-  "evaluations": [
-    {"criterion": "...", "dimension": "...", "score": N, "justification": "..."},
-    ...
-  ]
-}`;
+Output as JSON with this EXACT structure (use the exact criterion names shown):
+${JSON.stringify(structureExample, null, 2)}`;
 
     const response = await client.chat.completions.create({
         model,
@@ -421,69 +487,47 @@ Output as JSON:
         throw new Error('Empty response from LLM');
     }
 
-    const parsed = JSON.parse(content) as {
-        evaluations: Array<{
-            criterion: string;
-            dimension?: string;
-            score: number;
-            justification: string;
-        }>;
-    };
+    const parsed = JSON.parse(content) as Record<string, Record<string, { score: number; justification: string }>>;
 
-    // Convert to comparative format with reference = 5.0 (baseline average)
-    const comparativeEvals = parsed.evaluations.map(e => ({
-        criterion: e.criterion,
-        dimension: e.dimension,
-        score_a: e.score,
-        score_b: 5.0, // Baseline score
-        justification: e.justification
-    }));
-
-    return calculateWeightedScores(comparativeEvals, criteria);
+    return calculateStructuredScores(parsed, criteria);
 }
 
 /**
- * Calculate weighted RACE scores from criterion-level evaluations
+ * Calculate RACE scores from structured per-dimension/per-criterion evaluations
  */
-export function calculateWeightedScores(
-    evaluations: Array<{
-        criterion: string;
-        dimension?: string;
-        score_a: number;
-        score_b: number;
-        justification: string;
-    }>,
-    criteria: RACEDimension[]
+export function calculateStructuredScores(
+    evaluations: Record<string, Record<string, { score: number; justification: string }>>,
+    criteria: RACEDimension[],
+    baselineScore: number = 5.0
 ): RACEScores {
     const dimensionScores: RACEDimensionScore[] = [];
 
     for (const dim of criteria) {
         const criteriaScores: RACECriterionScore[] = [];
+        const dimEvals = evaluations[dim.name] || {};
 
         for (const crit of dim.criteria) {
-            // Find matching evaluation (fuzzy match on criterion name)
-            const evalMatch = evaluations.find(e =>
-                e.criterion.toLowerCase().includes(crit.criterion.toLowerCase().slice(0, 10)) ||
-                crit.criterion.toLowerCase().includes(e.criterion.toLowerCase().slice(0, 10)) ||
-                e.dimension?.toLowerCase() === dim.name.toLowerCase()
-            );
+            // Direct lookup by criterion name (exact or fuzzy)
+            let evalEntry = dimEvals[crit.criterion];
 
-            if (evalMatch) {
-                criteriaScores.push({
-                    criterion: crit.criterion,
-                    score_target: Math.max(0, Math.min(10, evalMatch.score_a)),
-                    score_reference: Math.max(0, Math.min(10, evalMatch.score_b)),
-                    justification: evalMatch.justification
-                });
-            } else {
-                // Default scores if no match found
-                criteriaScores.push({
-                    criterion: crit.criterion,
-                    score_target: 5,
-                    score_reference: 5,
-                    justification: 'No explicit evaluation provided'
-                });
+            // Fuzzy fallback: try to find by partial key match
+            if (!evalEntry) {
+                const key = Object.keys(dimEvals).find(k =>
+                    k.toLowerCase().includes(crit.criterion.toLowerCase().slice(0, 12)) ||
+                    crit.criterion.toLowerCase().includes(k.toLowerCase().slice(0, 12))
+                );
+                if (key) evalEntry = dimEvals[key];
             }
+
+            const targetScore = evalEntry ? Math.max(0, Math.min(10, evalEntry.score)) : 5;
+            const justification = evalEntry?.justification || 'No explicit evaluation provided';
+
+            criteriaScores.push({
+                criterion: crit.criterion,
+                score_target: targetScore,
+                score_reference: baselineScore,
+                justification
+            });
         }
 
         // Calculate weighted averages for dimension

@@ -395,12 +395,14 @@ function cleanSentence(sentence: string): string {
  * Normalize URL for deduplication
  */
 export function normalizeUrl(url: string): string {
+    // Strip trailing punctuation that may be captured from text (periods, commas, semicolons)
+    const cleanedUrl = url.replace(/[.,;:!?)]+$/, '');
     try {
-        const parsed = new URL(url);
+        const parsed = new URL(cleanedUrl);
         // Remove trailing slashes, lowercase hostname
         return `${parsed.protocol}//${parsed.hostname.toLowerCase()}${parsed.pathname.replace(/\/$/, '')}`;
     } catch {
-        return url.toLowerCase().replace(/\/$/, '');
+        return cleanedUrl.toLowerCase().replace(/\/$/, '');
     }
 }
 

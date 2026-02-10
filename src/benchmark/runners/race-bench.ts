@@ -12,7 +12,9 @@
  */
 
 import { searchService } from '../../services/search.service';
+import { enhancedSearchService } from '../../services/enhanced-search.service';
 import { llmService } from '../../services/llm.service';
+import { extractionService } from '../../services/extraction.service';
 import {
     generateTaskCriteria,
     getDefaultCriteria,
@@ -30,7 +32,8 @@ import {
     printVerdict,
     delayBetweenAPICalls,
     saveJsonReport,
-    saveHtmlReport
+    saveHtmlReport,
+    stripThinkingChain
 } from '../utils';
 
 // Load DeepResearch-Bench queries
@@ -152,12 +155,26 @@ export async function runRACEBenchmark(
         const startTime = Date.now();
 
         try {
-            // Step 1: Search for papers
+            // Step 1: Refine query and search for papers
             if (verbose) {
-                console.log('   Searching for papers...');
+                console.log('   Refining search query...');
             }
 
-            const papers = await searchService.searchPapers(query.prompt, papersPerQuery);
+            const refinedQuery = await llmService.refineQuery(query.prompt);
+
+            if (verbose) {
+                console.log(`   Search query: "${refinedQuery}"`);
+                console.log('   Searching for papers (enhanced multi-provider)...');
+            }
+
+            const searchResult = await enhancedSearchService.search(refinedQuery, {
+                limit: papersPerQuery,
+                useExpansion: true,
+                useReranking: true,
+                multiProvider: true,
+                deduplicateByDoi: true
+            });
+            const papers = searchResult.papers;
 
             if (papers.length === 0) {
                 console.log('   No papers found, skipping...');
@@ -165,16 +182,31 @@ export async function runRACEBenchmark(
             }
 
             if (verbose) {
-                console.log(`   Retrieved ${papers.length} papers`);
+                console.log(`   Retrieved ${papers.length} papers (from ${searchResult.metadata.totalFound} total, ${searchResult.metadata.deduplicated} after dedup)`);
             }
 
-            // Step 2: Generate research report
+            // Step 2: Extract paper content for enhanced generation
+            if (verbose) {
+                console.log('   Extracting paper content...');
+            }
+
+            const paperContents = await extractionService.extractMultiplePapers(papers);
+
+            if (verbose) {
+                const withContent = [...paperContents.values()].filter(c => c.length > 500).length;
+                console.log(`   Extracted content for ${withContent}/${papers.length} papers (${paperContents.size} total with fallbacks)`);
+            }
+
+            // Step 3: Generate research report with enhanced content
             if (verbose) {
                 console.log('   Generating literature review...');
             }
 
-            const review = await llmService.generateLiteratureReview(papers, query.prompt);
-            const reportLength = review.content.split(/\s+/).length;
+            const review = await llmService.generateLiteratureReview(papers, query.prompt, paperContents);
+
+            // Strip thinking chain artifacts from report
+            const cleanedReport = stripThinkingChain(review.content);
+            const reportLength = cleanedReport.split(/\s+/).length;
 
             if (verbose) {
                 console.log(`   Generated report (${reportLength} words)`);
@@ -197,7 +229,7 @@ export async function runRACEBenchmark(
                 console.log('   Evaluating report quality...');
             }
 
-            const scores = await scoreReportSolo(review.content, query.prompt, criteria);
+            const scores = await scoreReportSolo(cleanedReport, query.prompt, criteria);
             const latencyMs = Date.now() - startTime;
 
             allScores.push(scores);

@@ -10,3 +10,4 @@ export * from './report-writer';
 export * from './benchmark-config';
 export * from './citation-extractor';
 export * from './web-scraper';
+export * from './text-utils';

@@ -11,7 +11,9 @@
  */
 
 import { searchService } from '../../services/search.service';
+import { enhancedSearchService } from '../../services/enhanced-search.service';
 import { llmService } from '../../services/llm.service';
+import { extractionService } from '../../services/extraction.service';
 import {
     evaluateCitationAccuracy,
     extractCitationStats,
@@ -28,7 +30,8 @@ import {
     printVerdict,
     delayBetweenAPICalls,
     saveJsonReport,
-    saveHtmlReport
+    saveHtmlReport,
+    stripThinkingChain
 } from '../utils';
 
 // Load DeepResearch-Bench queries
@@ -161,12 +164,26 @@ export async function runFACTBenchmark(
         const startTime = Date.now();
 
         try {
-            // Step 1: Search for papers
+            // Step 1: Refine query and search for papers
             if (verbose) {
-                console.log('   Searching for papers...');
+                console.log('   Refining search query...');
             }
 
-            const papers = await searchService.searchPapers(query.prompt, papersPerQuery);
+            const refinedQuery = await llmService.refineQuery(query.prompt);
+
+            if (verbose) {
+                console.log(`   Search query: "${refinedQuery}"`);
+                console.log('   Searching for papers (enhanced multi-provider)...');
+            }
+
+            const searchResult = await enhancedSearchService.search(refinedQuery, {
+                limit: papersPerQuery,
+                useExpansion: true,
+                useReranking: true,
+                multiProvider: true,
+                deduplicateByDoi: true
+            });
+            const papers = searchResult.papers;
 
             if (papers.length === 0) {
                 console.log('   No papers found, skipping...');
@@ -174,23 +191,67 @@ export async function runFACTBenchmark(
             }
 
             if (verbose) {
-                console.log(`   Retrieved ${papers.length} papers`);
+                console.log(`   Retrieved ${papers.length} papers (from ${searchResult.metadata.totalFound} total, ${searchResult.metadata.deduplicated} after dedup)`);
             }
 
-            // Step 2: Generate research report
+            // Step 2: Extract paper content for enhanced generation
+            if (verbose) {
+                console.log('   Extracting paper content...');
+            }
+
+            const paperContents = await extractionService.extractMultiplePapers(papers);
+
+            if (verbose) {
+                const withContent = [...paperContents.values()].filter(c => c.length > 500).length;
+                console.log(`   Extracted content for ${withContent}/${papers.length} papers`);
+            }
+
+            // Step 2a: Generate research report with enhanced content
             if (verbose) {
                 console.log('   Generating literature review...');
             }
 
-            const review = await llmService.generateLiteratureReview(papers, query.prompt);
-            const reportLength = review.content.split(/\s+/).length;
+            const review = await llmService.generateLiteratureReview(papers, query.prompt, paperContents);
+
+            // Strip thinking chain artifacts from report
+            const cleanedReport = stripThinkingChain(review.content);
+            const reportLength = cleanedReport.split(/\s+/).length;
 
             if (verbose) {
                 console.log(`   Generated report (${reportLength} words)`);
             }
 
+            // Step 2b: Build paper URL map (ref index → preferred URL)
+            const paperUrlMap = new Map<string, string>();
+            papers.forEach((paper, idx) => {
+                const refIdx = (idx + 1).toString(); // [1], [2], [3]...
+                // Use preferred URL (arXiv/OA first, DOI last) for better scrapability
+                const preferredUrl = extractionService.getPreferredUrl(paper);
+                if (preferredUrl) {
+                    paperUrlMap.set(refIdx, preferredUrl);
+                } else if (paper.doi) {
+                    paperUrlMap.set(refIdx, `https://doi.org/${paper.doi}`);
+                } else if (paper.url) {
+                    paperUrlMap.set(refIdx, paper.url);
+                }
+            });
+
+            // Step 2c: Build abstract fallback map
+            const paperAbstractMap = new Map<string, string>();
+            papers.forEach((paper, idx) => {
+                const refIdx = (idx + 1).toString();
+                if (paper.abstract) {
+                    paperAbstractMap.set(refIdx, paper.abstract);
+                }
+            });
+
+            if (verbose) {
+                console.log(`   Mapped ${paperUrlMap.size}/${papers.length} papers to URLs`);
+                console.log(`   Abstract fallbacks: ${paperAbstractMap.size}/${papers.length}`);
+            }
+
             // Step 3: Extract citation statistics (quick)
-            const citationStats = extractCitationStats(review.content);
+            const citationStats = extractCitationStats(cleanedReport);
 
             if (verbose) {
                 console.log(`   Found ${citationStats.totalCitations} citations (${citationStats.uniqueUrls} unique URLs)`);
@@ -220,9 +281,11 @@ export async function runFACTBenchmark(
                     console.log('   Validating citations...');
                 }
 
-                result = await evaluateCitationAccuracy(review.content, {
+                result = await evaluateCitationAccuracy(cleanedReport, {
                     maxCitations: maxCitationsPerReport,
-                    verbose: false
+                    paperUrlMap,
+                    paperAbstractMap,
+                    verbose
                 });
             }
 
