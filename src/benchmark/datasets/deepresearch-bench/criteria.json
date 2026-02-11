@@ -1,0 +1,210 @@
+{
+  "version": "1.0",
+  "description": "RACE evaluation criteria and dimension weights for DeepResearch-Bench",
+  "source": "Adapted from DeepResearch-Bench RACE framework",
+  "dimensions": {
+    "comprehensiveness": {
+      "description": "Evaluates how thoroughly the report covers the topic, including breadth of coverage, key concepts, and important developments",
+      "default_weight": 0.30,
+      "default_criteria": [
+        {
+          "criterion": "Topic Coverage Breadth",
+          "explanation": "Does the report cover all major aspects and sub-topics of the research area?",
+          "weight": 0.35
+        },
+        {
+          "criterion": "Key Concepts Inclusion",
+          "explanation": "Are all fundamental concepts, definitions, and terminology properly introduced and explained?",
+          "weight": 0.25
+        },
+        {
+          "criterion": "Historical Development",
+          "explanation": "Does the report trace the evolution of the field and major milestones?",
+          "weight": 0.20
+        },
+        {
+          "criterion": "Current State Coverage",
+          "explanation": "Does the report adequately cover the current state-of-the-art and recent advances?",
+          "weight": 0.20
+        }
+      ]
+    },
+    "insight": {
+      "description": "Evaluates the depth of analysis, critical thinking, and novel perspectives in the report",
+      "default_weight": 0.25,
+      "default_criteria": [
+        {
+          "criterion": "Technical Depth",
+          "explanation": "Does the report provide deep technical analysis of methods, algorithms, and mechanisms?",
+          "weight": 0.30
+        },
+        {
+          "criterion": "Critical Analysis",
+          "explanation": "Does the report critically evaluate approaches, identifying strengths, weaknesses, and tradeoffs?",
+          "weight": 0.30
+        },
+        {
+          "criterion": "Connections and Synthesis",
+          "explanation": "Does the report make meaningful connections between different works and synthesize insights?",
+          "weight": 0.25
+        },
+        {
+          "criterion": "Future Directions",
+          "explanation": "Does the report identify open problems, challenges, and promising research directions?",
+          "weight": 0.15
+        }
+      ]
+    },
+    "instruction_following": {
+      "description": "Evaluates how well the report adheres to the specific task requirements and instructions",
+      "default_weight": 0.25,
+      "default_criteria": [
+        {
+          "criterion": "Task Relevance",
+          "explanation": "Does the report directly address the specific question or topic requested?",
+          "weight": 0.35
+        },
+        {
+          "criterion": "Scope Adherence",
+          "explanation": "Does the report maintain appropriate scope without unnecessary tangents?",
+          "weight": 0.25
+        },
+        {
+          "criterion": "Format Compliance",
+          "explanation": "Does the report follow expected formatting, structure, and organization?",
+          "weight": 0.20
+        },
+        {
+          "criterion": "Constraint Satisfaction",
+          "explanation": "Does the report satisfy any specific constraints or requirements in the prompt?",
+          "weight": 0.20
+        }
+      ]
+    },
+    "readability": {
+      "description": "Evaluates the clarity, organization, and accessibility of the report",
+      "default_weight": 0.20,
+      "default_criteria": [
+        {
+          "criterion": "Clarity of Writing",
+          "explanation": "Is the writing clear, precise, and easy to understand?",
+          "weight": 0.30
+        },
+        {
+          "criterion": "Logical Organization",
+          "explanation": "Is the report well-organized with clear sections and logical flow?",
+          "weight": 0.30
+        },
+        {
+          "criterion": "Technical Accessibility",
+          "explanation": "Are complex concepts explained in an accessible manner without oversimplification?",
+          "weight": 0.25
+        },
+        {
+          "criterion": "Coherence",
+          "explanation": "Are transitions smooth and does the narrative maintain coherence throughout?",
+          "weight": 0.15
+        }
+      ]
+    }
+  },
+  "domain_specific_weights": {
+    "deep_learning": {
+      "comprehensiveness": 0.30,
+      "insight": 0.30,
+      "instruction_following": 0.20,
+      "readability": 0.20
+    },
+    "ai_safety": {
+      "comprehensiveness": 0.25,
+      "insight": 0.35,
+      "instruction_following": 0.25,
+      "readability": 0.15
+    },
+    "privacy_ml": {
+      "comprehensiveness": 0.30,
+      "insight": 0.25,
+      "instruction_following": 0.25,
+      "readability": 0.20
+    },
+    "generative_models": {
+      "comprehensiveness": 0.30,
+      "insight": 0.30,
+      "instruction_following": 0.20,
+      "readability": 0.20
+    },
+    "nlp": {
+      "comprehensiveness": 0.30,
+      "insight": 0.25,
+      "instruction_following": 0.25,
+      "readability": 0.20
+    },
+    "computer_vision": {
+      "comprehensiveness": 0.30,
+      "insight": 0.25,
+      "instruction_following": 0.25,
+      "readability": 0.20
+    },
+    "healthcare_ai": {
+      "comprehensiveness": 0.25,
+      "insight": 0.30,
+      "instruction_following": 0.30,
+      "readability": 0.15
+    },
+    "systems_ml": {
+      "comprehensiveness": 0.25,
+      "insight": 0.25,
+      "instruction_following": 0.30,
+      "readability": 0.20
+    },
+    "rl_theory": {
+      "comprehensiveness": 0.25,
+      "insight": 0.35,
+      "instruction_following": 0.20,
+      "readability": 0.20
+    },
+    "quantum_computing": {
+      "comprehensiveness": 0.25,
+      "insight": 0.35,
+      "instruction_following": 0.20,
+      "readability": 0.20
+    },
+    "causality": {
+      "comprehensiveness": 0.25,
+      "insight": 0.35,
+      "instruction_following": 0.20,
+      "readability": 0.20
+    },
+    "xai": {
+      "comprehensiveness": 0.25,
+      "insight": 0.30,
+      "instruction_following": 0.25,
+      "readability": 0.20
+    },
+    "responsible_ai": {
+      "comprehensiveness": 0.25,
+      "insight": 0.30,
+      "instruction_following": 0.30,
+      "readability": 0.15
+    }
+  },
+  "scoring_guidelines": {
+    "scale": {
+      "min": 0,
+      "max": 10,
+      "description": "0-10 scale where 0 is completely absent and 10 is exceptional"
+    },
+    "grade_thresholds": {
+      "exceptional": 9.0,
+      "excellent": 8.0,
+      "good": 7.0,
+      "acceptable": 6.0,
+      "needs_improvement": 5.0,
+      "poor": 0
+    }
+  },
+  "prompts": {
+    "criteria_generation": "Given the following research task, generate specific evaluation criteria for each dimension (comprehensiveness, insight, instruction_following, readability). The criteria should be tailored to the specific topic and requirements of the task.\n\nTask: {task}\n\nFor each dimension, provide 3-4 specific criteria with:\n1. criterion: A short name for the criterion\n2. explanation: What this criterion evaluates\n3. weight: Relative importance (0-1, sum to 1 within dimension)\n\nOutput as JSON.",
+    "comparative_scoring": "You are evaluating two research reports on the same topic. Compare them across the following criteria and assign scores (0-10) to each report for each criterion.\n\nTask: {task}\n\nReport A (Target):\n{report_a}\n\nReport B (Reference):\n{report_b}\n\nCriteria to evaluate:\n{criteria}\n\nFor each criterion, provide:\n1. score_a: Score for Report A (0-10)\n2. score_b: Score for Report B (0-10)\n3. justification: Brief explanation of the scores\n\nOutput as JSON with structure: { \"evaluations\": [{\"criterion\": \"...\", \"score_a\": N, \"score_b\": N, \"justification\": \"...\"}] }"
+  }
+}

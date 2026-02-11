@@ -13,7 +13,10 @@
     "bench:retrieval": "ts-node src/benchmark/runners/retrieval-bench.ts",
     "bench:generation": "ts-node src/benchmark/runners/generation-bench.ts",
     "bench:compare": "ts-node src/benchmark/runners/comparative-bench.ts",
-    "bench:search": "ts-node src/benchmark/runners/search-improvement-bench.ts"
+    "bench:search": "ts-node src/benchmark/runners/search-improvement-bench.ts",
+    "bench:race": "ts-node src/benchmark/runners/race-bench.ts",
+    "bench:fact": "ts-node src/benchmark/runners/fact-bench.ts",
+    "bench:deepresearch": "ts-node src/benchmark/runners/deepresearch-bench.ts"
   },
   "keywords": [],
   "author": "",

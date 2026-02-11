@@ -4,6 +4,7 @@ import { enhancedSearchService } from "./enhanced-search.service";
 import { embeddingService } from "./embedding.service";
 import { llmService } from "./llm.service";
 import { knowledgeService } from "./knowledge.service";
+import { extractionService } from "./extraction.service";
 import { contextManager } from "./agent-context";
 import { Paper } from "../models/database.models";
 import { logger } from '../utils/logger';
@@ -473,7 +474,10 @@ export class ToolExecutor {
         }
 
         const topic = args.focus_topic || 'the research topic';
-        const result = await llmService.generateLiteratureReview(papers, topic);
+
+        // Extract paper content for enhanced generation
+        const paperContents = await extractionService.extractMultiplePapers(papers);
+        const result = await llmService.generateLiteratureReview(papers, topic, paperContents);
         context.metadata.analysisCount++;
 
         return {

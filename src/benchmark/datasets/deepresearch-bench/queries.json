@@ -1,0 +1,907 @@
+{
+  "version": "1.0",
+  "description": "DeepResearch-Bench test queries - 100 PhD-level research tasks across 22 domains",
+  "source": "Adapted from DeepResearch-Bench benchmark suite",
+  "queries": [
+    {
+      "id": "dr-001",
+      "topic": "Transformer Architecture",
+      "language": "en",
+      "domain": "deep_learning",
+      "prompt": "Conduct a comprehensive literature review on the evolution of transformer architectures from the original 'Attention Is All You Need' paper to modern efficient transformers. Analyze the key innovations in attention mechanisms, positional encodings, and architectural modifications. Compare computational complexity and performance tradeoffs across different variants.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "citation_accuracy"]
+    },
+    {
+      "id": "dr-002",
+      "topic": "Large Language Model Alignment",
+      "language": "en",
+      "domain": "ai_safety",
+      "prompt": "Investigate the current state of alignment techniques for large language models. Cover RLHF, Constitutional AI, DPO, and other preference learning methods. Analyze their theoretical foundations, empirical effectiveness, and remaining challenges. Discuss the scalability of these approaches as models grow larger.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "instruction_following"]
+    },
+    {
+      "id": "dr-003",
+      "topic": "Federated Learning Privacy",
+      "language": "en",
+      "domain": "privacy_ml",
+      "prompt": "Examine privacy-preserving techniques in federated learning systems. Analyze differential privacy mechanisms, secure aggregation protocols, and their combinations. Discuss the privacy-utility tradeoffs and compare different threat models. Include recent advances in handling non-IID data distributions.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "readability"]
+    },
+    {
+      "id": "dr-004",
+      "topic": "Neural Architecture Search",
+      "language": "en",
+      "domain": "automl",
+      "prompt": "Review the field of Neural Architecture Search (NAS) including reinforcement learning-based, evolutionary, and gradient-based approaches. Analyze search space design, optimization strategies, and hardware-aware NAS. Discuss the reproducibility crisis in NAS research and benchmark standardization efforts.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "citation_accuracy"]
+    },
+    {
+      "id": "dr-005",
+      "topic": "Graph Neural Networks",
+      "language": "en",
+      "domain": "graph_ml",
+      "prompt": "Provide an in-depth analysis of message-passing neural networks and their theoretical foundations. Cover expressiveness limitations related to the Weisfeiler-Leman hierarchy, over-smoothing problems, and solutions including higher-order GNNs and positional encodings. Discuss applications in molecular property prediction and social network analysis.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "insight"]
+    },
+    {
+      "id": "dr-006",
+      "topic": "Diffusion Models",
+      "language": "en",
+      "domain": "generative_models",
+      "prompt": "Survey the mathematical foundations and recent advances in diffusion probabilistic models. Cover score matching, denoising score matching, and their connections to stochastic differential equations. Analyze architectural innovations like U-Net modifications, conditioning mechanisms, and guidance techniques. Compare with GANs and VAEs.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "readability"]
+    },
+    {
+      "id": "dr-007",
+      "topic": "Causal Inference in ML",
+      "language": "en",
+      "domain": "causality",
+      "prompt": "Examine the integration of causal inference methods with machine learning. Cover causal discovery algorithms, treatment effect estimation, and causal representation learning. Analyze the role of causal models in achieving robust, generalizable predictions and addressing distribution shift.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["insight", "technical_depth", "comprehensiveness"]
+    },
+    {
+      "id": "dr-008",
+      "topic": "Quantum Machine Learning",
+      "language": "en",
+      "domain": "quantum_computing",
+      "prompt": "Review the current state of quantum machine learning including variational quantum circuits, quantum kernel methods, and quantum-classical hybrid algorithms. Critically analyze claimed quantum advantages and the barren plateau problem. Discuss near-term applications on NISQ devices.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "insight", "citation_accuracy"]
+    },
+    {
+      "id": "dr-009",
+      "topic": "Self-Supervised Learning",
+      "language": "en",
+      "domain": "representation_learning",
+      "prompt": "Provide a comprehensive review of self-supervised learning methods in computer vision and NLP. Cover contrastive learning (SimCLR, MoCo), masked prediction (MAE, BERT), and clustering-based methods. Analyze theoretical understanding of why these methods work and their transfer learning capabilities.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "readability"]
+    },
+    {
+      "id": "dr-010",
+      "topic": "Continual Learning",
+      "language": "en",
+      "domain": "lifelong_learning",
+      "prompt": "Survey approaches to catastrophic forgetting in neural networks. Cover regularization-based methods (EWC, SI), replay-based approaches, and architectural methods. Analyze the stability-plasticity dilemma and discuss evaluation protocols and benchmarks in continual learning research.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "instruction_following"]
+    },
+    {
+      "id": "dr-011",
+      "topic": "Multimodal Foundation Models",
+      "language": "en",
+      "domain": "multimodal_ai",
+      "prompt": "Examine the architecture and training of multimodal foundation models like CLIP, ALIGN, and Flamingo. Analyze vision-language pre-training objectives, cross-modal attention mechanisms, and emergent capabilities. Discuss challenges in scaling and alignment across modalities.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "technical_depth"]
+    },
+    {
+      "id": "dr-012",
+      "topic": "Interpretable Machine Learning",
+      "language": "en",
+      "domain": "xai",
+      "prompt": "Review interpretability methods for deep learning including attention visualization, gradient-based attribution, concept-based explanations, and mechanistic interpretability. Critically analyze the faithfulness and reliability of different explanation methods. Discuss the role of interpretability in high-stakes applications.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "readability"]
+    },
+    {
+      "id": "dr-013",
+      "topic": "Robustness in Neural Networks",
+      "language": "en",
+      "domain": "adversarial_ml",
+      "prompt": "Survey adversarial robustness in deep learning covering attack methods, certified defenses, and empirical defenses. Analyze the gap between certified and empirical robustness. Discuss robustness to natural distribution shifts and the relationship between robustness and generalization.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "citation_accuracy"]
+    },
+    {
+      "id": "dr-014",
+      "topic": "Neural Scaling Laws",
+      "language": "en",
+      "domain": "scaling",
+      "prompt": "Analyze empirical scaling laws in deep learning including the Chinchilla scaling laws and their implications for compute-optimal training. Discuss the predictability of model capabilities, emergent abilities, and the breakdown of scaling law predictions. Cover implications for AI development trajectory.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["insight", "comprehensiveness", "technical_depth"]
+    },
+    {
+      "id": "dr-015",
+      "topic": "Protein Structure Prediction",
+      "language": "en",
+      "domain": "computational_biology",
+      "prompt": "Review deep learning approaches to protein structure prediction from AlphaFold to recent advances. Cover multiple sequence alignment processing, structure module design, and confidence estimation. Analyze impact on drug discovery and remaining challenges in protein design and dynamics.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "insight"]
+    },
+    {
+      "id": "dr-016",
+      "topic": "Reinforcement Learning Theory",
+      "language": "en",
+      "domain": "rl_theory",
+      "prompt": "Examine theoretical foundations of deep reinforcement learning including sample complexity bounds, exploration-exploitation tradeoffs, and function approximation guarantees. Cover policy gradient theory, Q-learning convergence, and the role of representation learning in RL.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "insight", "readability"]
+    },
+    {
+      "id": "dr-017",
+      "topic": "Knowledge Distillation",
+      "language": "en",
+      "domain": "model_compression",
+      "prompt": "Survey knowledge distillation techniques for model compression. Cover soft label distillation, feature-based distillation, and relation-based methods. Analyze self-distillation phenomena and the dark knowledge hypothesis. Discuss applications in deploying large models on edge devices.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "instruction_following"]
+    },
+    {
+      "id": "dr-018",
+      "topic": "Few-Shot Learning",
+      "language": "en",
+      "domain": "meta_learning",
+      "prompt": "Review few-shot learning approaches including metric learning, meta-learning (MAML, Prototypical Networks), and in-context learning in large language models. Compare episodic training paradigms with pre-training approaches. Analyze benchmark saturation and evaluation methodology.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "citation_accuracy"]
+    },
+    {
+      "id": "dr-019",
+      "topic": "Neural ODEs",
+      "language": "en",
+      "domain": "neural_diff_eq",
+      "prompt": "Examine neural ordinary differential equations and their extensions. Cover adjoint sensitivity methods, augmented neural ODEs, and connections to normalizing flows. Analyze applications in time series modeling and physics-informed machine learning. Discuss computational considerations.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "insight", "readability"]
+    },
+    {
+      "id": "dr-020",
+      "topic": "Automated Theorem Proving",
+      "language": "en",
+      "domain": "formal_methods",
+      "prompt": "Review machine learning approaches to automated theorem proving and formal verification. Cover neural-guided search, language model applications in Lean/Coq, and curriculum learning for mathematical reasoning. Analyze the gap between informal and formal mathematics.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "insight"]
+    },
+    {
+      "id": "dr-021",
+      "topic": "Bayesian Deep Learning",
+      "language": "en",
+      "domain": "uncertainty_quantification",
+      "prompt": "Survey Bayesian approaches to deep learning including variational inference, Monte Carlo dropout, and deep ensembles. Compare uncertainty quantification methods and their calibration properties. Discuss scalability challenges and applications in safety-critical systems.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "readability"]
+    },
+    {
+      "id": "dr-022",
+      "topic": "Neuro-Symbolic AI",
+      "language": "en",
+      "domain": "hybrid_ai",
+      "prompt": "Examine the integration of neural networks with symbolic reasoning. Cover differentiable programming, neural-symbolic architectures, and inductive logic programming with neural components. Analyze the promise for combining learning and reasoning capabilities.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["insight", "comprehensiveness", "technical_depth"]
+    },
+    {
+      "id": "dr-023",
+      "topic": "Speech Recognition",
+      "language": "en",
+      "domain": "speech_processing",
+      "prompt": "Review the evolution of end-to-end speech recognition from CTC to attention-based encoder-decoders and Whisper. Cover self-supervised speech representations (wav2vec, HuBERT) and their impact on low-resource languages. Analyze remaining challenges in noisy and multilingual settings.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "instruction_following"]
+    },
+    {
+      "id": "dr-024",
+      "topic": "Recommendation Systems",
+      "language": "en",
+      "domain": "information_retrieval",
+      "prompt": "Survey deep learning approaches to recommendation systems including collaborative filtering with neural networks, sequential recommendation, and knowledge graph-enhanced methods. Analyze fairness and bias issues. Discuss evaluation beyond accuracy including diversity and novelty.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "readability"]
+    },
+    {
+      "id": "dr-025",
+      "topic": "Model Merging",
+      "language": "en",
+      "domain": "model_fusion",
+      "prompt": "Examine techniques for merging multiple trained neural networks. Cover weight averaging, task arithmetic, and TIES merging. Analyze the linear mode connectivity hypothesis and conditions under which merging succeeds. Discuss applications in federated learning and multi-task learning.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "insight", "citation_accuracy"]
+    },
+    {
+      "id": "dr-026",
+      "topic": "Code Generation",
+      "language": "en",
+      "domain": "program_synthesis",
+      "prompt": "Review large language models for code generation from Codex to modern code LLMs. Cover training data considerations, evaluation benchmarks (HumanEval, MBPP), and techniques like execution feedback and self-debugging. Analyze security implications and code quality metrics.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "insight"]
+    },
+    {
+      "id": "dr-027",
+      "topic": "Domain Adaptation",
+      "language": "en",
+      "domain": "transfer_learning",
+      "prompt": "Survey domain adaptation methods in deep learning covering discrepancy-based, adversarial-based, and self-training approaches. Analyze theoretical bounds on target domain performance. Discuss partial and open-set domain adaptation and their practical importance.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "readability"]
+    },
+    {
+      "id": "dr-028",
+      "topic": "Efficient Inference",
+      "language": "en",
+      "domain": "systems_ml",
+      "prompt": "Examine techniques for efficient neural network inference including quantization, pruning, and neural architecture search for efficiency. Cover hardware-software co-design and deployment frameworks. Analyze the tradeoffs between latency, memory, and accuracy.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "instruction_following"]
+    },
+    {
+      "id": "dr-029",
+      "topic": "Generative Adversarial Networks",
+      "language": "en",
+      "domain": "generative_models",
+      "prompt": "Provide a comprehensive review of GAN training dynamics and stabilization techniques. Cover progressive growing, style-based generation, and conditional generation. Analyze mode collapse, training instabilities, and evaluation metrics. Compare with modern diffusion-based alternatives.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "insight"]
+    },
+    {
+      "id": "dr-030",
+      "topic": "Medical Image Analysis",
+      "language": "en",
+      "domain": "healthcare_ai",
+      "prompt": "Review deep learning in medical image analysis covering segmentation, classification, and detection tasks. Analyze challenges unique to medical imaging including limited labeled data, class imbalance, and interpretability requirements. Discuss regulatory considerations and clinical deployment.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "readability"]
+    },
+    {
+      "id": "dr-031",
+      "topic": "Mixture of Experts",
+      "language": "en",
+      "domain": "sparse_models",
+      "prompt": "Examine Mixture of Experts architectures in modern large language models. Cover routing mechanisms, load balancing strategies, and training stability. Analyze the computational benefits and challenges of sparse models. Discuss recent advances like Switch Transformer and Mixtral.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "insight", "citation_accuracy"]
+    },
+    {
+      "id": "dr-032",
+      "topic": "Temporal Modeling",
+      "language": "en",
+      "domain": "time_series",
+      "prompt": "Survey deep learning approaches to time series forecasting including Transformers, state space models (Mamba, S4), and hybrid approaches. Analyze the effectiveness compared to classical methods. Discuss multivariate forecasting and handling missing data.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-033",
+      "topic": "Retrieval-Augmented Generation",
+      "language": "en",
+      "domain": "information_retrieval",
+      "prompt": "Review retrieval-augmented generation systems from RAG to modern implementations. Cover retriever design, fusion mechanisms, and attribution methods. Analyze hallucination reduction, context length limitations, and evaluation frameworks. Discuss hybrid approaches with tool use.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "technical_depth"]
+    },
+    {
+      "id": "dr-034",
+      "topic": "Fairness in ML",
+      "language": "en",
+      "domain": "responsible_ai",
+      "prompt": "Examine fairness definitions and mitigation strategies in machine learning. Cover demographic parity, equalized odds, and individual fairness. Analyze the impossibility theorems and tradeoffs between different fairness criteria. Discuss fairness in large language models.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "instruction_following"]
+    },
+    {
+      "id": "dr-035",
+      "topic": "Point Cloud Processing",
+      "language": "en",
+      "domain": "3d_vision",
+      "prompt": "Survey deep learning methods for 3D point cloud processing including PointNet, point convolutions, and transformer-based approaches. Cover applications in autonomous driving, robotics, and 3D reconstruction. Analyze scalability to large-scale point clouds.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "readability"]
+    },
+    {
+      "id": "dr-036",
+      "topic": "Prompt Engineering",
+      "language": "en",
+      "domain": "llm_applications",
+      "prompt": "Review systematic approaches to prompt engineering for large language models. Cover chain-of-thought, self-consistency, tree-of-thought, and automated prompt optimization. Analyze prompt sensitivity and transferability. Discuss the science of prompting vs. fine-tuning.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "citation_accuracy"]
+    },
+    {
+      "id": "dr-037",
+      "topic": "Neural Radiance Fields",
+      "language": "en",
+      "domain": "neural_rendering",
+      "prompt": "Examine neural radiance fields and their extensions. Cover volume rendering foundations, positional encoding importance, and acceleration techniques. Analyze applications in novel view synthesis, 3D reconstruction, and generative 3D. Discuss limitations and recent advances.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "insight"]
+    },
+    {
+      "id": "dr-038",
+      "topic": "Hyperparameter Optimization",
+      "language": "en",
+      "domain": "automl",
+      "prompt": "Survey hyperparameter optimization methods including Bayesian optimization, multi-fidelity methods (Hyperband, BOHB), and neural network-based approaches. Analyze meta-learning for hyperparameter transfer. Discuss practical considerations for large-scale deep learning.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-039",
+      "topic": "Document Understanding",
+      "language": "en",
+      "domain": "document_ai",
+      "prompt": "Review deep learning for document understanding including layout analysis, information extraction, and document QA. Cover multimodal approaches combining text, vision, and layout. Analyze challenges in handling diverse document formats and long documents.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "instruction_following"]
+    },
+    {
+      "id": "dr-040",
+      "topic": "Emergent Capabilities",
+      "language": "en",
+      "domain": "llm_science",
+      "prompt": "Examine emergent capabilities in large language models. Cover evidence for and against emergent abilities, the role of evaluation metrics, and theoretical explanations. Analyze in-context learning, chain-of-thought reasoning, and instruction following as potential emergent behaviors.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["insight", "technical_depth", "comprehensiveness"]
+    },
+    {
+      "id": "dr-041",
+      "topic": "Offline Reinforcement Learning",
+      "language": "en",
+      "domain": "rl_applications",
+      "prompt": "Survey offline reinforcement learning methods including behavior cloning, conservative Q-learning, and decision transformers. Analyze distribution shift challenges and extrapolation error. Discuss applications in robotics and healthcare where online exploration is costly.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "citation_accuracy"]
+    },
+    {
+      "id": "dr-042",
+      "topic": "Data Augmentation",
+      "language": "en",
+      "domain": "training_methods",
+      "prompt": "Review data augmentation techniques for deep learning from classical image transforms to learned augmentations (AutoAugment) and mixup variants. Cover text augmentation methods and augmentation in self-supervised learning. Analyze theoretical understanding of why augmentation helps.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "readability"]
+    },
+    {
+      "id": "dr-043",
+      "topic": "Language Model Pretraining",
+      "language": "en",
+      "domain": "nlp",
+      "prompt": "Examine the evolution of language model pretraining objectives from BERT to modern causal LMs. Cover masked language modeling, next token prediction, and hybrid approaches. Analyze the impact of training data composition and deduplication on model capabilities.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "insight"]
+    },
+    {
+      "id": "dr-044",
+      "topic": "Multi-Task Learning",
+      "language": "en",
+      "domain": "transfer_learning",
+      "prompt": "Survey multi-task learning in deep neural networks covering hard and soft parameter sharing, task relationship learning, and gradient-based optimization challenges. Analyze negative transfer and task interference. Discuss applications in NLP and computer vision.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-045",
+      "topic": "Video Understanding",
+      "language": "en",
+      "domain": "video_ai",
+      "prompt": "Review deep learning approaches to video understanding including action recognition, temporal modeling, and video-language models. Cover two-stream networks, 3D convolutions, and video transformers. Analyze computational challenges and efficient video processing.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "instruction_following"]
+    },
+    {
+      "id": "dr-046",
+      "topic": "Label Noise Learning",
+      "language": "en",
+      "domain": "robust_learning",
+      "prompt": "Examine learning with noisy labels including noise estimation, sample selection methods, and regularization approaches. Cover theoretical analysis of memorization effects. Discuss real-world noise patterns beyond random label flipping.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "insight", "comprehensiveness"]
+    },
+    {
+      "id": "dr-047",
+      "topic": "Geometric Deep Learning",
+      "language": "en",
+      "domain": "geometric_ml",
+      "prompt": "Survey geometric deep learning principles including equivariance, invariance, and the geometric priors in neural network design. Cover group theory foundations and applications in molecular modeling and physics simulations. Analyze the unifying framework across different domains.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "readability"]
+    },
+    {
+      "id": "dr-048",
+      "topic": "Agent-Based AI",
+      "language": "en",
+      "domain": "ai_agents",
+      "prompt": "Review LLM-based autonomous agents covering planning, memory systems, and tool use. Analyze agent architectures like ReAct and reflexion. Discuss challenges in reliability, safety, and evaluation of agentic systems. Cover multi-agent collaboration frameworks.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "citation_accuracy"]
+    },
+    {
+      "id": "dr-049",
+      "topic": "Optimization in Deep Learning",
+      "language": "en",
+      "domain": "optimization",
+      "prompt": "Examine optimization algorithms for deep learning from SGD to Adam and beyond. Cover learning rate scheduling, adaptive methods, and second-order approximations. Analyze the loss landscape structure and its implications for optimization. Discuss optimization for large-scale distributed training.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "insight"]
+    },
+    {
+      "id": "dr-050",
+      "topic": "Imitation Learning",
+      "language": "en",
+      "domain": "learning_from_demonstrations",
+      "prompt": "Survey imitation learning approaches including behavioral cloning, inverse reinforcement learning, and GAIL. Analyze distribution shift and compounding errors. Cover recent advances combining imitation with reinforcement learning and applications in robotics.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-051",
+      "topic": "Parameter-Efficient Fine-Tuning",
+      "language": "en",
+      "domain": "efficient_ml",
+      "prompt": "Review parameter-efficient fine-tuning methods including adapters, LoRA, prefix tuning, and prompt tuning. Compare their effectiveness across different tasks and model scales. Analyze memory and computational tradeoffs. Discuss composability of multiple adaptations.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "citation_accuracy"]
+    },
+    {
+      "id": "dr-052",
+      "topic": "Active Learning",
+      "language": "en",
+      "domain": "data_efficient_learning",
+      "prompt": "Examine active learning strategies for deep learning including uncertainty sampling, diversity-based selection, and expected model change. Analyze batch mode active learning and its scalability. Discuss challenges with deep neural networks and modern solutions.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "insight"]
+    },
+    {
+      "id": "dr-053",
+      "topic": "Neural Text Generation",
+      "language": "en",
+      "domain": "nlg",
+      "prompt": "Survey decoding strategies for neural text generation including beam search, nucleus sampling, and contrastive search. Analyze repetition and degeneration problems. Cover controlled generation techniques and evaluation metrics beyond perplexity.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-054",
+      "topic": "Object Detection",
+      "language": "en",
+      "domain": "computer_vision",
+      "prompt": "Review the evolution of deep learning object detection from R-CNN to DETR and modern approaches. Cover anchor-based and anchor-free methods, feature pyramid networks, and transformer-based detectors. Analyze speed-accuracy tradeoffs and evaluation protocols.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "instruction_following"]
+    },
+    {
+      "id": "dr-055",
+      "topic": "Curriculum Learning",
+      "language": "en",
+      "domain": "training_methods",
+      "prompt": "Examine curriculum learning and self-paced learning in deep neural networks. Cover automatic curriculum design and difficulty measures. Analyze connections to human learning and theoretical justifications. Discuss applications in reinforcement learning and NLP.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["insight", "comprehensiveness", "technical_depth"]
+    },
+    {
+      "id": "dr-056",
+      "topic": "Long-Context Language Models",
+      "language": "en",
+      "domain": "llm_architecture",
+      "prompt": "Survey approaches to extending context length in language models. Cover sparse attention, linear attention, memory-augmented approaches, and position extrapolation. Analyze evaluation benchmarks for long-context abilities and practical limitations.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "citation_accuracy"]
+    },
+    {
+      "id": "dr-057",
+      "topic": "Semantic Segmentation",
+      "language": "en",
+      "domain": "computer_vision",
+      "prompt": "Review deep learning approaches to semantic segmentation from FCN to modern transformer-based methods. Cover encoder-decoder architectures, attention mechanisms, and multi-scale processing. Analyze domain adaptation and semi-supervised approaches.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-058",
+      "topic": "Language Model Evaluation",
+      "language": "en",
+      "domain": "evaluation",
+      "prompt": "Examine evaluation frameworks for large language models covering capability benchmarks, safety evaluations, and human preference assessment. Analyze limitations of current benchmarks and benchmark contamination concerns. Discuss holistic evaluation approaches.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "instruction_following"]
+    },
+    {
+      "id": "dr-059",
+      "topic": "Distributed Deep Learning",
+      "language": "en",
+      "domain": "systems_ml",
+      "prompt": "Survey distributed training techniques for deep learning including data parallelism, model parallelism, and pipeline parallelism. Cover communication optimization and gradient compression. Analyze 3D parallelism strategies for large language model training.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "insight"]
+    },
+    {
+      "id": "dr-060",
+      "topic": "Zero-Shot Learning",
+      "language": "en",
+      "domain": "transfer_learning",
+      "prompt": "Review zero-shot learning approaches including attribute-based methods, generative approaches, and embedding-based methods. Analyze the role of auxiliary information and cross-modal transfer. Discuss zero-shot capabilities in large language and vision-language models.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-061",
+      "topic": "Drug Discovery AI",
+      "language": "en",
+      "domain": "healthcare_ai",
+      "prompt": "Examine deep learning applications in drug discovery covering molecular property prediction, molecule generation, and protein-ligand binding. Analyze the impact of foundation models in chemistry. Discuss validation challenges and translation to wet lab experiments.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "citation_accuracy"]
+    },
+    {
+      "id": "dr-062",
+      "topic": "Attention Mechanisms",
+      "language": "en",
+      "domain": "deep_learning",
+      "prompt": "Provide a comprehensive review of attention mechanisms beyond self-attention. Cover cross-attention, multi-head attention variants, linear attention, and sparse attention patterns. Analyze computational and memory tradeoffs of different attention mechanisms.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "insight"]
+    },
+    {
+      "id": "dr-063",
+      "topic": "Anomaly Detection",
+      "language": "en",
+      "domain": "applied_ml",
+      "prompt": "Survey deep learning approaches to anomaly detection including autoencoders, GANs, and one-class classification. Cover self-supervised approaches for anomaly detection. Analyze challenges in evaluation and threshold selection. Discuss applications in cybersecurity and manufacturing.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-064",
+      "topic": "Text-to-Image Generation",
+      "language": "en",
+      "domain": "generative_models",
+      "prompt": "Review text-to-image generation models from DALL-E to Stable Diffusion and beyond. Cover conditioning mechanisms, CLIP guidance, and classifier-free guidance. Analyze compositionality challenges, evaluation metrics, and societal implications.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "instruction_following"]
+    },
+    {
+      "id": "dr-065",
+      "topic": "Sentiment Analysis",
+      "language": "en",
+      "domain": "nlp",
+      "prompt": "Examine the evolution of deep learning for sentiment analysis from CNN/LSTM approaches to transformer-based models. Cover aspect-based sentiment analysis and cross-domain adaptation. Analyze challenges with sarcasm, implicit sentiment, and multimodal sentiment.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "citation_accuracy"]
+    },
+    {
+      "id": "dr-066",
+      "topic": "World Models",
+      "language": "en",
+      "domain": "model_based_rl",
+      "prompt": "Survey world models in deep reinforcement learning covering Dreamer, MuZero, and their extensions. Analyze the role of imagination in planning and the accuracy-utility tradeoff. Discuss applications in robotics and game playing.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "insight", "comprehensiveness"]
+    },
+    {
+      "id": "dr-067",
+      "topic": "Neural Machine Translation",
+      "language": "en",
+      "domain": "nlp",
+      "prompt": "Review the evolution of neural machine translation from sequence-to-sequence models to transformers and multilingual systems. Cover low-resource translation, document-level translation, and non-autoregressive approaches. Analyze evaluation beyond BLEU.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-068",
+      "topic": "Batch Normalization Alternatives",
+      "language": "en",
+      "domain": "deep_learning",
+      "prompt": "Examine normalization techniques in deep learning beyond batch normalization. Cover layer normalization, group normalization, and instance normalization. Analyze their effectiveness in different architectures and batch size regimes. Discuss normalization-free approaches.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "insight"]
+    },
+    {
+      "id": "dr-069",
+      "topic": "Multi-Agent Reinforcement Learning",
+      "language": "en",
+      "domain": "marl",
+      "prompt": "Survey multi-agent reinforcement learning including centralized training with decentralized execution, communication protocols, and opponent modeling. Analyze cooperation and competition dynamics. Discuss scalability challenges and applications.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-070",
+      "topic": "Visual Question Answering",
+      "language": "en",
+      "domain": "multimodal_ai",
+      "prompt": "Review deep learning approaches to visual question answering covering attention mechanisms, compositional reasoning, and knowledge integration. Analyze benchmark biases and evaluation challenges. Discuss recent advances with vision-language models.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "instruction_following"]
+    },
+    {
+      "id": "dr-071",
+      "topic": "Dataset Distillation",
+      "language": "en",
+      "domain": "data_efficient_learning",
+      "prompt": "Examine dataset distillation and condensation methods for learning from synthetic data. Cover gradient matching, distribution matching, and trajectory matching approaches. Analyze scalability and cross-architecture transfer. Discuss applications in privacy and continual learning.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "insight", "citation_accuracy"]
+    },
+    {
+      "id": "dr-072",
+      "topic": "Pose Estimation",
+      "language": "en",
+      "domain": "computer_vision",
+      "prompt": "Survey deep learning for human pose estimation covering 2D and 3D approaches, top-down and bottom-up methods. Analyze multi-person pose estimation challenges. Discuss applications in action recognition, sports analytics, and AR/VR.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-073",
+      "topic": "Speculative Decoding",
+      "language": "en",
+      "domain": "efficient_inference",
+      "prompt": "Review speculative decoding and related techniques for accelerating autoregressive generation. Cover draft model selection, verification mechanisms, and adaptive speculation. Analyze speedup-quality tradeoffs and hardware considerations.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "insight", "comprehensiveness"]
+    },
+    {
+      "id": "dr-074",
+      "topic": "Named Entity Recognition",
+      "language": "en",
+      "domain": "nlp",
+      "prompt": "Examine deep learning approaches to named entity recognition from BiLSTM-CRF to transformer-based methods. Cover nested NER, cross-lingual NER, and few-shot NER. Analyze domain adaptation challenges in specialized domains like biomedicine.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "citation_accuracy"]
+    },
+    {
+      "id": "dr-075",
+      "topic": "Tokenization",
+      "language": "en",
+      "domain": "nlp",
+      "prompt": "Review tokenization approaches for neural language models including BPE, WordPiece, and SentencePiece. Analyze the impact of vocabulary size and tokenization on model capabilities. Discuss challenges with multilingual tokenization and code.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "insight", "readability"]
+    },
+    {
+      "id": "dr-076",
+      "topic": "Embodied AI",
+      "language": "en",
+      "domain": "robotics",
+      "prompt": "Survey embodied AI research covering sim-to-real transfer, vision-language-action models, and learning from interaction. Analyze the role of foundation models in robotics. Discuss challenges in generalization across environments and tasks.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "instruction_following"]
+    },
+    {
+      "id": "dr-077",
+      "topic": "Semi-Supervised Learning",
+      "language": "en",
+      "domain": "data_efficient_learning",
+      "prompt": "Review semi-supervised learning for deep neural networks covering pseudo-labeling, consistency regularization, and contrastive approaches (FixMatch, MixMatch). Analyze theoretical understanding and practical effectiveness. Discuss challenges in class imbalance.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-078",
+      "topic": "Language Model Memorization",
+      "language": "en",
+      "domain": "llm_science",
+      "prompt": "Examine memorization in large language models covering extraction attacks, membership inference, and privacy risks. Analyze factors affecting memorization including data duplication and model size. Discuss mitigation strategies and evaluation protocols.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["insight", "technical_depth", "comprehensiveness"]
+    },
+    {
+      "id": "dr-079",
+      "topic": "Image Captioning",
+      "language": "en",
+      "domain": "multimodal_ai",
+      "prompt": "Review deep learning for image captioning from encoder-decoder models to modern vision-language approaches. Cover dense captioning, visual storytelling, and evaluation metrics. Analyze hallucination problems and factual grounding.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "citation_accuracy"]
+    },
+    {
+      "id": "dr-080",
+      "topic": "Reward Modeling",
+      "language": "en",
+      "domain": "rl_applications",
+      "prompt": "Survey reward modeling for reinforcement learning from human feedback. Cover preference learning, reward hacking, and overoptimization problems. Analyze scalable oversight and debate approaches. Discuss implications for AI alignment.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["insight", "comprehensiveness", "technical_depth"]
+    },
+    {
+      "id": "dr-081",
+      "topic": "Instance Segmentation",
+      "language": "en",
+      "domain": "computer_vision",
+      "prompt": "Review deep learning approaches to instance segmentation covering Mask R-CNN, SOLO, and transformer-based methods. Analyze panoptic segmentation combining semantic and instance segmentation. Discuss evaluation metrics and computational considerations.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "readability"]
+    },
+    {
+      "id": "dr-082",
+      "topic": "Compression and Quantization",
+      "language": "en",
+      "domain": "efficient_ml",
+      "prompt": "Examine neural network quantization techniques including post-training quantization and quantization-aware training. Cover mixed-precision strategies and extreme quantization (1-bit, ternary). Analyze accuracy-efficiency tradeoffs for different architectures.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "instruction_following"]
+    },
+    {
+      "id": "dr-083",
+      "topic": "Question Answering",
+      "language": "en",
+      "domain": "nlp",
+      "prompt": "Survey deep learning for question answering covering extractive, generative, and open-domain QA. Analyze reading comprehension benchmarks and their limitations. Discuss multi-hop reasoning and knowledge-intensive QA.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-084",
+      "topic": "Test-Time Adaptation",
+      "language": "en",
+      "domain": "domain_adaptation",
+      "prompt": "Review test-time adaptation methods for handling distribution shift at inference. Cover entropy minimization, self-training approaches, and prompt-based adaptation. Analyze stability challenges and online adaptation scenarios.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "insight", "citation_accuracy"]
+    },
+    {
+      "id": "dr-085",
+      "topic": "Dialogue Systems",
+      "language": "en",
+      "domain": "conversational_ai",
+      "prompt": "Examine deep learning for dialogue systems covering task-oriented and open-domain dialogue. Analyze knowledge grounding, persona consistency, and evaluation challenges. Discuss the impact of large language models on conversational AI.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "technical_depth"]
+    },
+    {
+      "id": "dr-086",
+      "topic": "Image Restoration",
+      "language": "en",
+      "domain": "low_level_vision",
+      "prompt": "Survey deep learning for image restoration covering denoising, super-resolution, and inpainting. Analyze the transition from CNN-based to transformer and diffusion-based approaches. Discuss perceptual quality vs. fidelity tradeoffs.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-087",
+      "topic": "Constitutional AI",
+      "language": "en",
+      "domain": "ai_safety",
+      "prompt": "Examine Constitutional AI and critique-based training methods. Cover self-improvement through AI feedback and harmlessness training. Analyze the scalability of constitutional approaches and comparison with RLHF. Discuss implications for AI governance.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["insight", "comprehensiveness", "instruction_following"]
+    },
+    {
+      "id": "dr-088",
+      "topic": "Optical Character Recognition",
+      "language": "en",
+      "domain": "document_ai",
+      "prompt": "Review deep learning for optical character recognition covering scene text detection and recognition. Analyze end-to-end approaches and attention-based decoders. Discuss challenges with handwriting, historical documents, and low-resource languages.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "citation_accuracy"]
+    },
+    {
+      "id": "dr-089",
+      "topic": "Representation Collapse",
+      "language": "en",
+      "domain": "representation_learning",
+      "prompt": "Examine representation collapse in self-supervised and contrastive learning. Cover mode collapse, dimensional collapse, and solutions including batch normalization, asymmetric architectures, and predictor networks. Analyze theoretical understanding.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "insight", "comprehensiveness"]
+    },
+    {
+      "id": "dr-090",
+      "topic": "Audio Generation",
+      "language": "en",
+      "domain": "audio_ml",
+      "prompt": "Survey deep learning for audio generation covering text-to-speech, music generation, and audio effects. Analyze neural vocoders, autoregressive models, and diffusion-based approaches. Discuss evaluation metrics and perceptual quality assessment.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-091",
+      "topic": "Depth Estimation",
+      "language": "en",
+      "domain": "3d_vision",
+      "prompt": "Review monocular depth estimation using deep learning covering supervised and self-supervised approaches. Analyze metric vs. relative depth estimation and generalization challenges. Discuss applications in autonomous driving and augmented reality.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "citation_accuracy"]
+    },
+    {
+      "id": "dr-092",
+      "topic": "Instruction Tuning",
+      "language": "en",
+      "domain": "llm_training",
+      "prompt": "Examine instruction tuning for large language models covering data collection strategies, FLAN, and diverse instruction formats. Analyze the role of instruction diversity and quality. Discuss synthetic instruction generation and curriculum considerations.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "instruction_following"]
+    },
+    {
+      "id": "dr-093",
+      "topic": "Scene Understanding",
+      "language": "en",
+      "domain": "computer_vision",
+      "prompt": "Survey deep learning for holistic scene understanding covering scene recognition, layout estimation, and affordance detection. Analyze multi-task approaches and scene graphs. Discuss applications in robotics and autonomous systems.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-094",
+      "topic": "Lottery Ticket Hypothesis",
+      "language": "en",
+      "domain": "network_pruning",
+      "prompt": "Review the Lottery Ticket Hypothesis and its extensions. Cover iterative magnitude pruning, late rewinding, and theoretical explanations. Analyze connections to neural architecture search and implications for understanding neural network optimization.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "insight", "comprehensiveness"]
+    },
+    {
+      "id": "dr-095",
+      "topic": "Relation Extraction",
+      "language": "en",
+      "domain": "nlp",
+      "prompt": "Examine deep learning for relation extraction covering sentence-level, document-level, and open information extraction. Analyze distant supervision and noise mitigation. Discuss knowledge graph completion and applications.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "citation_accuracy"]
+    },
+    {
+      "id": "dr-096",
+      "topic": "Motion Prediction",
+      "language": "en",
+      "domain": "autonomous_systems",
+      "prompt": "Survey trajectory prediction for autonomous driving covering social forces, graph neural networks, and transformer-based approaches. Analyze multi-modal prediction and interaction modeling. Discuss evaluation metrics and benchmark challenges.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["technical_depth", "comprehensiveness", "readability"]
+    },
+    {
+      "id": "dr-097",
+      "topic": "Mechanistic Interpretability",
+      "language": "en",
+      "domain": "xai",
+      "prompt": "Examine mechanistic interpretability research covering circuit analysis, feature visualization, and activation patching. Analyze discoveries about attention heads and MLPs in transformers. Discuss the path toward understanding model internals.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["insight", "technical_depth", "comprehensiveness"]
+    },
+    {
+      "id": "dr-098",
+      "topic": "Face Recognition",
+      "language": "en",
+      "domain": "biometrics",
+      "prompt": "Review deep learning for face recognition covering metric learning approaches, loss functions (ArcFace, CosFace), and challenges in unconstrained recognition. Analyze bias and fairness issues. Discuss privacy concerns and regulations.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "instruction_following"]
+    },
+    {
+      "id": "dr-099",
+      "topic": "Synthetic Data Generation",
+      "language": "en",
+      "domain": "data_engineering",
+      "prompt": "Survey synthetic data generation for machine learning covering image synthesis, text generation, and tabular data. Analyze privacy guarantees of synthetic data. Discuss validation approaches and the effectiveness of synthetic vs. real data.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "technical_depth", "readability"]
+    },
+    {
+      "id": "dr-100",
+      "topic": "Tool Use in LLMs",
+      "language": "en",
+      "domain": "llm_applications",
+      "prompt": "Examine tool use capabilities in large language models covering function calling, code execution, and API integration. Analyze training approaches for tool use and error handling. Discuss safety considerations and the path toward capable AI assistants.",
+      "expected_depth": "PhD",
+      "evaluation_focus": ["comprehensiveness", "insight", "citation_accuracy"]
+    }
+  ]
+}
