@@ -63,7 +63,6 @@ export interface BatchScrapeResult {
 const JINA_BASE_URL = 'https://r.jina.ai';
 const DEFAULT_TIMEOUT = 30000;
 const DEFAULT_MAX_LENGTH = 50000;
-const RATE_LIMIT_DELAY = 500; // ms between requests
 
 // ============================================================================
 // MAIN FUNCTIONS
@@ -161,62 +160,6 @@ export async function scrapeUrl(
 }
 
 /**
- * Scrape multiple URLs with rate limiting
- *
- * @param urls - Array of URLs to scrape
- * @param options - Scrape options
- * @param onProgress - Optional progress callback
- * @returns Batch scrape results
- */
-export async function scrapeUrls(
-    urls: string[],
-    options: ScrapeOptions = {},
-    onProgress?: (completed: number, total: number) => void
-): Promise<BatchScrapeResult> {
-    const results = new Map<string, ScrapeResult>();
-    const failures = new Map<string, string>();
-
-    let totalContentLength = 0;
-
-    for (let i = 0; i < urls.length; i++) {
-        const url = urls[i];
-
-        // Scrape with rate limiting
-        const result = await scrapeUrl(url, options);
-
-        if (result.success) {
-            results.set(url, result);
-            totalContentLength += result.contentLength;
-        } else {
-            failures.set(url, result.error || 'Unknown error');
-        }
-
-        // Report progress
-        if (onProgress) {
-            onProgress(i + 1, urls.length);
-        }
-
-        // Rate limit delay (except for last URL)
-        if (i < urls.length - 1) {
-            await delay(RATE_LIMIT_DELAY);
-        }
-    }
-
-    const successCount = results.size;
-
-    return {
-        results,
-        failures,
-        stats: {
-            total: urls.length,
-            successful: successCount,
-            failed: failures.size,
-            averageContentLength: successCount > 0 ? totalContentLength / successCount : 0
-        }
-    };
-}
-
-/**
  * Scrape URL content for citation validation
  * Returns simplified content suitable for LLM validation
  *
@@ -252,127 +195,9 @@ function cleanContentForValidation(content: string): string {
         .trim();
 }
 
-// ============================================================================
-// SPECIALIZED SCRAPERS
-// ============================================================================
-
-/**
- * Scrape arXiv paper abstract
- *
- * @param arxivId - arXiv paper ID (e.g., "2301.12345")
- * @returns Paper abstract and metadata
- */
-export async function scrapeArxiv(arxivId: string): Promise<{
-    title: string;
-    abstract: string;
-    authors: string[];
-    success: boolean;
-    error?: string;
-}> {
-    const url = `https://arxiv.org/abs/${arxivId}`;
-    const result = await scrapeUrl(url);
-
-    if (!result.success) {
-        return {
-            title: '',
-            abstract: '',
-            authors: [],
-            success: false,
-            error: result.error
-        };
-    }
-
-    // Extract metadata from content
-    const titleMatch = result.content.match(/^#\s+(.+?)(?:\n|$)/m);
-    const abstractMatch = result.content.match(/Abstract[:\s]*\n([\s\S]+?)(?:\n\n|\n#)/i);
-    const authorsMatch = result.content.match(/Authors?[:\s]*([^\n]+)/i);
-
-    return {
-        title: titleMatch?.[1]?.trim() || result.title || '',
-        abstract: abstractMatch?.[1]?.trim() || '',
-        authors: authorsMatch?.[1]?.split(/,|;/).map(a => a.trim()).filter(Boolean) || [],
-        success: true
-    };
-}
-
-/**
- * Scrape DOI-referenced paper
- *
- * @param doi - DOI string (e.g., "10.1234/example")
- * @returns Paper content
- */
-export async function scrapeDoi(doi: string): Promise<ScrapeResult> {
-    // Clean DOI and construct URL
-    const cleanDoi = doi.replace(/^doi:?\s*/i, '').trim();
-    const url = `https://doi.org/${cleanDoi}`;
-
-    return scrapeUrl(url);
-}
-
-// ============================================================================
-// UTILITY FUNCTIONS
-// ============================================================================
-
-/**
- * Delay execution for rate limiting
- */
-function delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 /**
  * Check if JINA_API_KEY is configured
  */
 export function isJinaConfigured(): boolean {
     return !!process.env.JINA_API_KEY;
-}
-
-/**
- * Validate URL format
- */
-export function isValidUrl(url: string): boolean {
-    try {
-        new URL(url);
-        return true;
-    } catch {
-        return false;
-    }
-}
-
-/**
- * Extract domain from URL
- */
-export function extractDomain(url: string): string {
-    try {
-        const parsed = new URL(url);
-        return parsed.hostname;
-    } catch {
-        return '';
-    }
-}
-
-/**
- * Check if URL is likely a research paper
- */
-export function isResearchPaperUrl(url: string): boolean {
-    const domain = extractDomain(url).toLowerCase();
-
-    const paperDomains = [
-        'arxiv.org',
-        'doi.org',
-        'acm.org',
-        'ieee.org',
-        'springer.com',
-        'sciencedirect.com',
-        'nature.com',
-        'pnas.org',
-        'aaai.org',
-        'neurips.cc',
-        'openreview.net',
-        'aclweb.org',
-        'semanticscholar.org',
-        'researchgate.net'
-    ];
-
-    return paperDomains.some(d => domain.includes(d));
 }

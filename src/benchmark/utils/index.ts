@@ -3,11 +3,11 @@
  * Re-export all utility modules
  */
 
-export * from './llm-client.factory';
+export * from '../../utils/llm-client.factory';
 export * from './rate-limiter';
 export * from './console-formatter';
 export * from './report-writer';
 export * from './benchmark-config';
 export * from './citation-extractor';
-export * from './web-scraper';
+export * from '../../utils/web-scraper';
 export * from './text-utils';

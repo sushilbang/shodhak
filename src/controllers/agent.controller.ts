@@ -1,14 +1,8 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { agentService } from '../services/agent.service';
 import { sessionPersistence } from '../services/session-persistence.service';
 import { logger } from '../utils/logger';
-
-interface AuthenticatedRequest extends Request {
-    user?: {
-        id: number;
-        email: string;
-    };
-}
+import { AuthenticatedRequest } from '../middleware/auth.middleware';
 
 class AgentController {
 
