@@ -80,28 +80,3 @@ export function createFastClient(): LLMClientResult {
     const model = process.env.GROQ_FAST_MODEL || 'llama-3.3-70b-versatile';
     return createLLMClient({ provider: 'groq', model });
 }
-
-/**
- * Get available LLM configurations from environment
- */
-export function getAvailableConfigs(): LLMClientConfig[] {
-    const configs: LLMClientConfig[] = [];
-
-    if (process.env.GROQ_API_KEY) {
-        configs.push({
-            provider: 'groq',
-            apiKey: process.env.GROQ_API_KEY,
-            model: process.env.GROQ_MODEL || DEFAULT_MODELS.groq
-        });
-    }
-
-    if (process.env.OPENAI_API_KEY) {
-        configs.push({
-            provider: 'openai',
-            apiKey: process.env.OPENAI_API_KEY,
-            model: process.env.OPENAI_MODEL || DEFAULT_MODELS.openai
-        });
-    }
-
-    return configs;
-}

@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { AgentContext, ChatMessage, ConversationSummary, KeyFact, KeyFactType } from '../types/agent.types';
-import { createReasoningClient } from '../benchmark/utils/llm-client.factory';
+import { createReasoningClient } from '../utils/llm-client.factory';
 import { sessionPersistence } from './session-persistence.service';
 import { logger } from '../utils/logger';
 
