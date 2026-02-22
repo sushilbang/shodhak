@@ -12,7 +12,7 @@
 
 import { searchService } from '../../services/search.service';
 import { enhancedSearchService } from '../../services/enhanced-search.service';
-import { llmService } from '../../services/llm.service';
+import { llmService } from '../../services/llm';
 import { extractionService } from '../../services/extraction.service';
 import {
     evaluateCitationAccuracy,

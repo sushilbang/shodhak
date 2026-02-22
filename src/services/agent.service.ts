@@ -1,10 +1,10 @@
 import OpenAI from 'openai';
 import { AgentContext, ChatMessage, AgentResponse } from '../types/agent.types';
-import { AGENT_TOOLS, toolExecutor } from './agent-tools';
+import { AGENT_TOOLS, toolExecutor } from './tools';
 import { contextManager } from './agent-context';
 import { contextCompression } from './context-compression.service';
 import { logger } from '../utils/logger';
-import { createLLMClient, LLMProvider } from '../benchmark/utils/llm-client.factory';
+import { createLLMClient, LLMProvider } from '../utils/llm-client.factory';
 
 const SYSTEM_PROMPT = `You are Shodhak, an intelligent research assistant specialized in academic literature research. You help users find, analyze, and synthesize academic papers.
 

@@ -79,26 +79,6 @@ export interface Report {
     created_at: Date;
 }
 
-export interface SemanticScholarPaper {
-    paperId: string;
-    title: string;
-    authors: { authorId: string; name: string }[];
-    abstract: string | null;
-    url: string;
-    doi?: string;
-    externalIds?: { DOI?: string; ArXiv?: string; PubMed?: string; [key: string]: any };
-    year?: number;
-    venue?: string;
-    citationCount?: number;
-}
-
-export interface SemanticScholarSearchResponse {
-    total: number;
-    offset: number;
-    next?: number;
-    data: SemanticScholarPaper[];
-}
-
 // --- Agent Session Persistence Models ---
 
 export interface AgentSession {

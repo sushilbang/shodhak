@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { logger } from '../utils/logger';
-import { createFastClient, LLMProvider } from '../benchmark/utils/llm-client.factory';
+import { createFastClient, LLMProvider } from '../utils/llm-client.factory';
 
 interface ExpandedQuery {
     original: string;

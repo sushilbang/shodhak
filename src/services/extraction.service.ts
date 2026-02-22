@@ -1,7 +1,7 @@
 import { Paper } from '../models/database.models';
 import { ExtractionResult, PaperSection } from '../types/agent.types';
 import { logger } from '../utils/logger';
-import { scrapeUrl, isJinaConfigured, ScrapeResult } from '../benchmark/utils/web-scraper';
+import { scrapeUrl, isJinaConfigured } from '../utils/web-scraper';
 
 // Rate limiting delay between Jina API calls
 const SCRAPE_DELAY_MS = 500;
@@ -72,26 +72,6 @@ class ExtractionService {
             };
         }
 
-        return null;
-    }
-
-    async extractFromPdfUrl(url: string): Promise<string | null> {
-        if (!isJinaConfigured()) return null;
-
-        const result = await scrapeUrl(url, { maxLength: 50000, timeout: 30000 });
-        if (result.success && result.content) {
-            return result.content;
-        }
-        return null;
-    }
-
-    async extractFromHtml(url: string): Promise<string | null> {
-        if (!isJinaConfigured()) return null;
-
-        const result = await scrapeUrl(url, { maxLength: 50000, timeout: 30000 });
-        if (result.success && result.content) {
-            return result.content;
-        }
         return null;
     }
 

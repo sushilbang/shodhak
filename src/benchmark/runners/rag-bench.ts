@@ -5,7 +5,7 @@
  */
 
 import { searchService } from '../../services/search.service';
-import { llmService } from '../../services/llm.service';
+import { llmService } from '../../services/llm';
 import {
     evaluateRAGWithPapers,
     aggregateRAGMetrics,

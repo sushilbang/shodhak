@@ -16,7 +16,7 @@
  * - UNKNOWN: Unable to determine (source unavailable, ambiguous, etc.)
  */
 
-import { createFastClient } from '../utils/llm-client.factory';
+import { createFastClient } from '../../utils/llm-client.factory';
 import {
     Citation,
     extractCitations,
@@ -24,7 +24,7 @@ import {
     getUniqueUrls,
     normalizeUrl
 } from '../utils/citation-extractor';
-import { scrapeUrl, scrapeForValidation, isJinaConfigured } from '../utils/web-scraper';
+import { scrapeUrl, scrapeForValidation, isJinaConfigured } from '../../utils/web-scraper';
 
 // ============================================================================
 // INTERFACES

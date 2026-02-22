@@ -169,26 +169,6 @@ class SearchService {
         return null;
     }
 
-    // Get paper details by external ID (provider-specific ID)
-    // For backwards compatibility with Semantic Scholar paper IDs
-    async getPaperDetails(paperId: string): Promise<Paper | null> {
-        const ssProvider = this.providers.get('semantic_scholar') as SemanticScholarProvider;
-        try {
-            const result = await this.withConcurrencyLimit(
-                ssProvider,
-                () => ssProvider.getPaperById(paperId)
-            );
-            if (result) {
-                const paper = normalizeToInternalPaper(result);
-                await this.savePaperIfNotExists(paper);
-                return paper;
-            }
-        } catch (error) {
-            logger.error('Failed to get paper details', { error, paperId });
-        }
-        return null;
-    }
-
     //Save paper to database if it doesn't exist
     async savePaperIfNotExists(paper: Paper): Promise<number> {
         const existing = await pool.query(
@@ -226,34 +206,6 @@ class SearchService {
         });
 
         return result.rows[0].id;
-    }
-
-    // Get paper from database by external ID
-    async getPaperByExternalId(external_id: string): Promise<Paper | null> {
-        const result = await pool.query(
-            'SELECT * FROM papers WHERE external_id = $1',
-            [external_id]
-        );
-
-        if (result.rows.length === 0) return null;
-
-        const row = result.rows[0];
-
-        return {
-            id: row.id,
-            external_id: row.external_id,
-            title: row.title,
-            authors: row.authors,
-            abstract: row.abstract,
-            url: row.url,
-            doi: row.doi,
-            year: row.year,
-            venue: row.venue,
-            citation_count: row.citation_count,
-            source: row.source,
-            metadata: row.metadata,
-            created_at: row.created_at,
-        };
     }
 
     // Get the current primary provider name

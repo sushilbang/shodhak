@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import agentRoutes from './routes/agent.routes';
 import { pool } from './config/database';
 import { logger } from './utils/logger';
-import { ensureTestUser } from './middleware/auth.middlware';
+import { ensureTestUser } from './middleware/auth.middleware';
 
 dotenv.config();
 

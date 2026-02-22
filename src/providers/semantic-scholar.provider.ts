@@ -6,7 +6,27 @@ import {
     ProviderCapabilities,
     ConcurrencyConfig,
 } from './paper-provider.interface';
-import { Paper, SemanticScholarPaper, SemanticScholarSearchResponse } from '../models/database.models';
+import { Paper } from '../models/database.models';
+
+interface SemanticScholarPaper {
+    paperId: string;
+    title: string;
+    authors: { authorId: string; name: string }[];
+    abstract: string | null;
+    url: string;
+    doi?: string;
+    externalIds?: { DOI?: string; ArXiv?: string; PubMed?: string; [key: string]: any };
+    year?: number;
+    venue?: string;
+    citationCount?: number;
+}
+
+interface SemanticScholarSearchResponse {
+    total: number;
+    offset: number;
+    next?: number;
+    data: SemanticScholarPaper[];
+}
 
 export class SemanticScholarProvider implements PaperProvider {
     readonly name = 'semantic_scholar';

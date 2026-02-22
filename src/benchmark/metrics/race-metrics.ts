@@ -14,7 +14,7 @@
  * - Weighted aggregation across dimensions
  */
 
-import { createLLMClient } from '../utils/llm-client.factory';
+import { createLLMClient } from '../../utils/llm-client.factory';
 
 // ============================================================================
 // INTERFACES

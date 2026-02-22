@@ -2,7 +2,7 @@ import { pool } from '../config/database';
 import { logger } from '../utils/logger'
 import { UserKnowledge, Paper } from '../models/database.models';
 import { embeddingService } from './embedding.service';
-import { llmService } from './llm.service';
+import { llmService } from './llm';
 
 class KnowledgeService {
     // create a new annotation(note) for a paper. generates an embedding for the content to enable semantic search across all user notes later
